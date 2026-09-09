@@ -24,6 +24,19 @@ export interface TerrainManifest {
   expectedHeight: number;
 }
 
+export interface CharacterManifest {
+  type: "character";
+  frameWidth: number;
+  frameHeight: number;
+  columns: number;
+  rows: number;
+  margin: number;
+  spacing: number;
+  directions: Record<string, number>;
+  frames?: Record<string, number>;
+  animations?: Record<string, unknown>;
+}
+
 export const DEFAULT_VALIDATION_SPECS: Record<AssetValidationKind, AssetValidationSpec> = {
   terrain: {
     kind: "terrain",
@@ -62,6 +75,20 @@ export function validationSpecFromTerrainManifest(manifest: TerrainManifest): As
     expectedHeight: manifest.expectedHeight,
     frameWidth: manifest.tileWidth,
     frameHeight: manifest.tileHeight,
+    columns: manifest.columns,
+    rows: manifest.rows,
+    margin: manifest.margin,
+    spacing: manifest.spacing,
+  };
+}
+
+export function validationSpecFromCharacterManifest(manifest: CharacterManifest): AssetValidationSpec {
+  return {
+    kind: "character",
+    expectedWidth: manifest.frameWidth * manifest.columns + manifest.margin * 2 + manifest.spacing * (manifest.columns - 1),
+    expectedHeight: manifest.frameHeight * manifest.rows + manifest.margin * 2 + manifest.spacing * (manifest.rows - 1),
+    frameWidth: manifest.frameWidth,
+    frameHeight: manifest.frameHeight,
     columns: manifest.columns,
     rows: manifest.rows,
     margin: manifest.margin,

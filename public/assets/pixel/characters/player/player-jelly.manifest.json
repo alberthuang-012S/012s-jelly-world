@@ -1,0 +1,46 @@
+{
+  "type": "character",
+  "frameWidth": 24,
+  "frameHeight": 32,
+  "columns": 4,
+  "rows": 4,
+  "margin": 0,
+  "spacing": 0,
+  "directions": {
+    "down": 0,
+    "left": 1,
+    "right": 2,
+    "up": 3
+  },
+  "frames": {
+    "idle": 0,
+    "walkA": 1,
+    "walkB": 2,
+    "walkC": 3
+  },
+  "animations": {
+    "idle": {
+      "sequence": [
+        0
+      ],
+      "frameRate": 1,
+      "repeat": -1
+    },
+    "walk": {
+      "sequence": [
+        1,
+        0,
+        2,
+        3,
+        0
+      ],
+      "frameRate": 8,
+      "repeat": -1
+    }
+  },
+  "anchor": {
+    "name": "bottom-center",
+    "x": 12,
+    "y": 31
+  }
+}

@@ -92,7 +92,7 @@ NPC 台詞集中在 `src/data/dialogues.ts`，每次互動會從指定句子中�
 - Registry：`src/game/assets/assetRegistry.ts`
 - 唯一 preload 入口：`src/game/scenes/BootScene.ts`
 - 視覺 fallback 與正式 Sprite 共用同一個 actor visual root；邏輯、碰撞、互動與對話不依賴圖片 alpha
-- `terrain.main` 已完成 acceptance 並採 `enabled: true`；其他尚未審核的 PNG/WebP 仍維持 `enabled: false`，避免空檔案或假 placeholder 進入 runtime
+- `terrain.main` 已完成 acceptance 並採 `enabled: true`；`character.player.jelly` 已完成素材 acceptance 但刻意維持 `enabled: false`，等待 Phase 1.5B-2；其他尚未審核的 PNG/WebP 也維持 `enabled: false`
 - 詳細尺寸、色盤、角色／建築規格與樹木雙層排序請見 [`docs/PIXEL_ART_SPEC.md`](docs/PIXEL_ART_SPEC.md)
 
 ## Pixel Asset Validation
@@ -104,9 +104,11 @@ NPC 台詞集中在 `src/data/dialogues.ts`，每次互動會從指定句子中�
 pnpm validate:assets
 pnpm validate:terrain -- path/to/terrain.png
 pnpm validate:terrain -- --strict path/to/terrain.png
+pnpm validate:character -- --strict public/assets/pixel/characters/player/player-jelly.png
 pnpm validate:assets -- --json --report --debug-grid
 pnpm test:assets
 pnpm build:terrain
+pnpm build:player-jelly
 ```
 
 正式 Terrain 的 manifest 位於
@@ -122,6 +124,16 @@ pnpm build:terrain
 `src/game/assets/terrainTileMap.ts`；正式 Terrain runtime 只透過 Registry 的 `terrain.main`
 載入 `public/assets/pixel/tiles/terrain/terrain.png`，不會讀取 `reference/` 或
 `validation-output/`。
+
+Formal Player Jelly 目前位於
+`public/assets/pixel/characters/player/player-jelly.png`：24×32 native frame、
+96×128 sheet、4 columns × 4 rows、margin 0、spacing 0。方向列固定為
+down、left、right、up；manifest 位於同一資料夾，authoring source 為
+`scripts/pixel-assets/build-formal-player-jelly.ts`，集中 palette 位於
+`scripts/pixel-assets/playerJellyPalette.ts`。Strict character validator 會
+檢查 manifest、16 frames occupancy、visible pixel count、每 frame bounding box、
+binary alpha 與 frame grid。人工 preview 寫入
+`validation-output/player-jelly-preview.png`，正式 Player 尚未切換進 runtime。
 
 ## GitHub Pages
 

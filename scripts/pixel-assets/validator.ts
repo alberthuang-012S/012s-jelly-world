@@ -1,6 +1,7 @@
 import * as fs from "node:fs";
+import * as path from "node:path";
 import { deflateSync, inflateSync } from "node:zlib";
-import type { AssetValidationKind, AssetValidationSpec } from "./config.ts";
+import type { AssetValidationKind, AssetValidationSpec, CharacterManifest } from "./config.ts";
 
 export type ValidationStatus = "PASS" | "WARN" | "FAIL" | "SKIP";
 
@@ -24,6 +25,7 @@ export interface OccupancyCell {
   visible: number;
   transparent: number;
   occupancy: number;
+  boundingBox: { x: number; y: number; width: number; height: number } | null;
 }
 
 export interface GridDiagnostic {
@@ -77,7 +79,7 @@ export function validateAsset(
   filePath: string,
   kind: AssetValidationKind,
   spec: AssetValidationSpec,
-  options: { strictMissing?: boolean; includeCells?: boolean } = {},
+  options: { strictMissing?: boolean; includeCells?: boolean; manifestPath?: string } = {},
 ): ValidationReport {
   if (!fs.existsSync(filePath)) {
     const status: ValidationStatus = options.strictMissing ? "FAIL" : "SKIP";
@@ -113,6 +115,17 @@ export function validateAsset(
   const warnings: string[] = [];
   const errors: string[] = [];
 
+  if (kind === "character") {
+    const manifestCheck = validateCharacterManifest(
+      options.manifestPath ?? defaultCharacterManifestPath(filePath),
+      spec,
+      options.strictMissing ?? false,
+    );
+    checks.push(manifestCheck);
+    if (manifestCheck.status === "FAIL") errors.push(manifestCheck.message);
+    if (manifestCheck.status === "WARN") warnings.push(manifestCheck.message);
+  }
+
   const dimensions = validateDimensions(image, spec);
   checks.push(dimensions);
   if (dimensions.status === "FAIL") {
@@ -145,6 +158,11 @@ export function validateAsset(
         },
       };
       checks.push(occupancyCheck);
+      if (kind === "character") {
+        const frameOccupancy = validateCharacterFrameOccupancy(grid);
+        checks.push(frameOccupancy);
+        if (frameOccupancy.status === "FAIL") errors.push(frameOccupancy.message);
+      }
       const diagnostic = validateGridDiagnostics(image, spec.frameWidth ?? 16, spec.frameHeight ?? 16);
       grid.diagnostic = diagnostic.diagnostic;
       checks.push(diagnostic.boundaryCheck);
@@ -423,12 +441,20 @@ function validateGrid(
   for (let row = 0; row < rows; row += 1) {
     for (let column = 0; column < columns; column += 1) {
       let visible = 0;
+      let minX = tileWidth;
+      let minY = tileHeight;
+      let maxX = -1;
+      let maxY = -1;
       const startX = spec.margin + column * (tileWidth + spec.spacing);
       const startY = spec.margin + row * (tileHeight + spec.spacing);
       for (let y = startY; y < Math.min(startY + tileHeight, image.height); y += 1) {
         for (let x = startX; x < Math.min(startX + tileWidth, image.width); x += 1) {
           if ((image.pixels[(y * image.width + x) * 4 + 3] ?? 0) > 0) {
             visible += 1;
+            minX = Math.min(minX, x - startX);
+            minY = Math.min(minY, y - startY);
+            maxX = Math.max(maxX, x - startX);
+            maxY = Math.max(maxY, y - startY);
           }
         }
       }
@@ -440,6 +466,12 @@ function validateGrid(
         visible,
         transparent: total - visible,
         occupancy: Number(((visible / total) * 100).toFixed(1)),
+        boundingBox: maxX < 0 ? null : {
+          x: minX,
+          y: minY,
+          width: maxX - minX + 1,
+          height: maxY - minY + 1,
+        },
       };
       cells.push(cell);
       if (visible > 0) {
@@ -464,10 +496,124 @@ function validateGrid(
       spacing: spec.spacing,
       nonEmptyTiles,
       emptyTiles: cells.length - nonEmptyTiles,
-      cells: includeCells ? cells : undefined,
+      cells: includeCells || spec.kind === "character" ? cells : undefined,
       diagnostic: { vertical: [], horizontal: [], repeatedTransparentSeparatorIntervals: [] },
     },
   };
+}
+
+function validateCharacterFrameOccupancy(
+  grid: NonNullable<ValidationReport["grid"]>,
+): ValidationCheck {
+  const cells = grid.cells ?? [];
+  const emptyFrames = cells.filter((cell) => cell.visible === 0).map((cell) => cell.index);
+  const frameSummary = cells.map((cell) => {
+    const bbox = cell.boundingBox;
+    const bounds = bbox ? `bbox=${bbox.x},${bbox.y},${bbox.width}x${bbox.height}` : "bbox=empty";
+    return `frame ${cell.index}: visible=${cell.visible} ${bounds}`;
+  }).join("; ");
+  return {
+    name: "Frame Occupancy",
+    status: emptyFrames.length === 0 ? "PASS" : "FAIL",
+    message: emptyFrames.length === 0
+      ? `All ${cells.length} frames contain visible pixels; ${frameSummary}`
+      : `Empty frames: ${emptyFrames.join(", ")}; ${frameSummary}`,
+    data: {
+      frames: cells.map((cell) => ({
+        index: cell.index,
+        visible: cell.visible,
+        boundingBox: cell.boundingBox,
+      })),
+      emptyFrames,
+    },
+  };
+}
+
+function validateCharacterManifest(
+  manifestPath: string,
+  spec: AssetValidationSpec,
+  strictMissing: boolean,
+): ValidationCheck {
+  if (!fs.existsSync(manifestPath)) {
+    return {
+      name: "Manifest",
+      status: strictMissing ? "FAIL" : "WARN",
+      message: `NOT FOUND: ${manifestPath}`,
+    };
+  }
+
+  let manifest: unknown;
+  try {
+    manifest = JSON.parse(fs.readFileSync(manifestPath, "utf8")) as unknown;
+  } catch (error) {
+    return {
+      name: "Manifest",
+      status: "FAIL",
+      message: `Invalid JSON: ${error instanceof Error ? error.message : String(error)}`,
+    };
+  }
+
+  if (!isCharacterManifest(manifest)) {
+    return {
+      name: "Manifest",
+      status: "FAIL",
+      message: "Invalid character manifest schema",
+    };
+  }
+
+  const expectedWidth = spec.expectedWidth;
+  const expectedHeight = spec.expectedHeight;
+  const actualWidth = manifest.frameWidth * manifest.columns + manifest.margin * 2 + manifest.spacing * (manifest.columns - 1);
+  const actualHeight = manifest.frameHeight * manifest.rows + manifest.margin * 2 + manifest.spacing * (manifest.rows - 1);
+  const directionEntries = [
+    ["down", 0],
+    ["left", 1],
+    ["right", 2],
+    ["up", 3],
+  ] as const;
+  const directionsValid = directionEntries.every(([name, row]) => manifest.directions[name] === row);
+  const matchesSpec = manifest.frameWidth === spec.frameWidth &&
+    manifest.frameHeight === spec.frameHeight &&
+    manifest.columns === spec.columns &&
+    manifest.rows === spec.rows &&
+    manifest.margin === spec.margin &&
+    manifest.spacing === spec.spacing &&
+    (expectedWidth === undefined || actualWidth === expectedWidth) &&
+    (expectedHeight === undefined || actualHeight === expectedHeight) &&
+    directionsValid;
+
+  return {
+    name: "Manifest",
+    status: matchesSpec ? "PASS" : "FAIL",
+    message: matchesSpec
+      ? `Parsed ${path.basename(manifestPath)}; directions down=0 left=1 right=2 up=3`
+      : "Manifest values do not match the character frame specification",
+    data: {
+      path: manifestPath,
+      frameWidth: manifest.frameWidth,
+      frameHeight: manifest.frameHeight,
+      columns: manifest.columns,
+      rows: manifest.rows,
+      margin: manifest.margin,
+      spacing: manifest.spacing,
+      directions: manifest.directions,
+    },
+  };
+}
+
+function defaultCharacterManifestPath(filePath: string): string {
+  return path.join(path.dirname(filePath), `${path.basename(filePath, path.extname(filePath))}.manifest.json`);
+}
+
+function isCharacterManifest(value: unknown): value is CharacterManifest {
+  if (!value || typeof value !== "object") return false;
+  const candidate = value as Partial<CharacterManifest>;
+  if (candidate.type !== "character") return false;
+  if (!Number.isInteger(candidate.frameWidth) || !Number.isInteger(candidate.frameHeight) ||
+    !Number.isInteger(candidate.columns) || !Number.isInteger(candidate.rows) ||
+    !Number.isInteger(candidate.margin) || !Number.isInteger(candidate.spacing)) return false;
+  if (!candidate.directions || typeof candidate.directions !== "object") return false;
+  return true;
 }
 
 function validateGridDiagnostics(

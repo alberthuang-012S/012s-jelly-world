@@ -131,6 +131,7 @@ validator:
 ```bash
 pnpm validate:terrain -- path/to/terrain.png
 pnpm validate:assets -- --strict
+pnpm validate:character -- --strict path/to/player-jelly.png
 pnpm test:assets
 ```
 
@@ -178,3 +179,31 @@ back to the original procedural Graphics renderer.
 Optional `--report`, `--json`, `--verbose`, and `--debug-grid` outputs are QA
 artifacts only. A grid debug PNG is written outside the runtime asset tree and
 must never be enabled in the runtime Registry.
+
+## Formal Player Jelly sheet
+
+The accepted master Player Jelly sheet is authored by
+`scripts/pixel-assets/build-formal-player-jelly.ts` with the compact palette in
+`scripts/pixel-assets/playerJellyPalette.ts`. It uses a 24×32 native frame and
+a 96×128 sheet with four columns and four direction rows:
+
+- Row 0: down/front
+- Row 1: left
+- Row 2: right
+- Row 3: up/back
+
+Each row contains idle, walk A, walk B, and recovery frames. The authoring
+writer rejects out-of-frame writes, checks binary alpha, requires every frame
+to be non-empty, and keeps a transparent safety border. The adjacent
+`player-jelly.manifest.json` records the grid, direction rows, animation
+sequence, and bottom-center anchor. Run:
+
+```bash
+pnpm build:player-jelly
+pnpm validate:character -- --strict public/assets/pixel/characters/player/player-jelly.png
+pnpm test:assets
+```
+
+The Player Jelly Registry entry remains `enabled: false` until the separate
+Phase 1.5B-2 runtime integration. The procedural Player fallback and
+`PlayerJelly.ts` are intentionally unchanged in this authoring phase.

@@ -3,9 +3,11 @@ import * as path from "node:path";
 import { pathToFileURL } from "node:url";
 import {
   DEFAULT_VALIDATION_SPECS,
+  validationSpecFromCharacterManifest,
   validationSpecFromTerrainManifest,
   type AssetValidationKind,
   type AssetValidationSpec,
+  type CharacterManifest,
   type TerrainManifest,
 } from "./pixel-assets/config.ts";
 import {
@@ -50,6 +52,7 @@ export async function main(argv = process.argv.slice(2)): Promise<number> {
     const report = validateAsset(target.filePath, target.kind, target.spec, {
       strictMissing: options.strict,
       includeCells: options.verbose || options.report,
+      manifestPath: target.kind === "character" ? characterManifestPath(target.filePath) : undefined,
     });
     reports.push(report);
     if (options.debugGrid && report.image && report.overall !== "SKIP") {
@@ -135,13 +138,13 @@ async function resolveTargets(options: CliOptions): Promise<Array<{ filePath: st
     return options.paths.map((input) => {
       const filePath = path.resolve(projectRoot, input);
       const kind = options.kind ?? inferKind(filePath);
-      return { filePath, kind, spec: kind === "terrain" ? readTerrainSpec() : DEFAULT_VALIDATION_SPECS[kind] };
+      return { filePath, kind, spec: readSpec(filePath, kind) };
     });
   }
 
   const discovered = await findPngFiles(assetRoot);
   const targets: Array<{ filePath: string; kind: AssetValidationKind; spec: AssetValidationSpec }> = [];
-  if (fs.existsSync(terrainPath)) {
+  if ((options.kind === undefined || options.kind === "terrain") && fs.existsSync(terrainPath)) {
     targets.push({ filePath: terrainPath, kind: "terrain", spec: readTerrainSpec() });
   } else if (options.kind === undefined || options.kind === "terrain") {
     targets.push({ filePath: terrainPath, kind: "terrain", spec: readTerrainSpec() });
@@ -150,7 +153,7 @@ async function resolveTargets(options: CliOptions): Promise<Array<{ filePath: st
     if (filePath.toLowerCase() === terrainPath.toLowerCase()) continue;
     const kind = options.kind ?? inferKind(filePath);
     if (options.kind && kind !== options.kind) continue;
-    targets.push({ filePath, kind, spec: kind === "terrain" ? readTerrainSpec() : DEFAULT_VALIDATION_SPECS[kind] });
+    targets.push({ filePath, kind, spec: readSpec(filePath, kind) });
   }
   return targets;
 }
@@ -174,6 +177,24 @@ function readTerrainSpec(): AssetValidationSpec {
   if (!fs.existsSync(terrainManifestPath)) return DEFAULT_VALIDATION_SPECS.terrain;
   const manifest = JSON.parse(fs.readFileSync(terrainManifestPath, "utf8")) as TerrainManifest;
   return validationSpecFromTerrainManifest(manifest);
+}
+
+function readSpec(filePath: string, kind: AssetValidationKind): AssetValidationSpec {
+  if (kind === "terrain") return readTerrainSpec();
+  if (kind !== "character") return DEFAULT_VALIDATION_SPECS[kind];
+  const manifestPath = characterManifestPath(filePath);
+  if (!fs.existsSync(manifestPath)) return DEFAULT_VALIDATION_SPECS.character;
+  try {
+    const manifest = JSON.parse(fs.readFileSync(manifestPath, "utf8")) as CharacterManifest;
+    if (manifest.type !== "character") return DEFAULT_VALIDATION_SPECS.character;
+    return validationSpecFromCharacterManifest(manifest);
+  } catch {
+    return DEFAULT_VALIDATION_SPECS.character;
+  }
+}
+
+function characterManifestPath(filePath: string): string {
+  return path.join(path.dirname(filePath), `${path.basename(filePath, path.extname(filePath))}.manifest.json`);
 }
 
 function inferKind(filePath: string): AssetValidationKind {
@@ -240,7 +261,8 @@ function printHelp(): void {
   process.stdout.write(`012S Pixel Asset Validator\n\n` +
     `Commands:\n` +
     `  pnpm validate:assets\n` +
-    `  pnpm validate:terrain -- path/to/terrain.png\n\n` +
+    `  pnpm validate:terrain -- path/to/terrain.png\n` +
+    `  pnpm validate:character -- --strict path/to/player-jelly.png\n\n` +
     `Options:\n` +
     `  --kind terrain|character|building|prop\n` +
     `  --strict       Missing files become FAIL\n` +

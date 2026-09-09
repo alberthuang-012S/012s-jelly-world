@@ -61,6 +61,17 @@ const characterAsset = (id: string, path: string, prefix: string): PixelAssetDef
   visual: { width: 32, height: 48, originX: 0.5, originY: 0.75 },
 });
 
+const playerJellyAnimations = (prefix: string): readonly PixelAnimationDefinition[] => [
+  { key: `${prefix}-idle-down`, row: 0, frames: 1, frameRate: 1, repeat: -1 },
+  { key: `${prefix}-walk-down`, row: 0, frames: 4, frameRate: 8, repeat: -1 },
+  { key: `${prefix}-idle-left`, row: 1, frames: 1, frameRate: 1, repeat: -1 },
+  { key: `${prefix}-walk-left`, row: 1, frames: 4, frameRate: 8, repeat: -1 },
+  { key: `${prefix}-idle-right`, row: 2, frames: 1, frameRate: 1, repeat: -1 },
+  { key: `${prefix}-walk-right`, row: 2, frames: 4, frameRate: 8, repeat: -1 },
+  { key: `${prefix}-idle-up`, row: 3, frames: 1, frameRate: 1, repeat: -1 },
+  { key: `${prefix}-walk-up`, row: 3, frames: 4, frameRate: 8, repeat: -1 },
+];
+
 export const PIXEL_ASSETS = {
   "terrain.grass": {
     id: "terrain.grass",
@@ -112,6 +123,20 @@ export const PIXEL_ASSETS = {
     margin: 0,
     spacing: 0,
     columns: 16,
+  },
+  "character.player.jelly": {
+    id: "character.player.jelly",
+    url: pixelAsset("characters/player/player-jelly.png"),
+    type: "spritesheet",
+    fallback: "procedural-character",
+    enabled: false,
+    frameWidth: 24,
+    frameHeight: 32,
+    margin: 0,
+    spacing: 0,
+    columns: 4,
+    animations: playerJellyAnimations("player-jelly"),
+    visual: { width: 48, height: 64, originX: 0.5, originY: 1 },
   },
   "building.lab": {
     id: "building.lab",
