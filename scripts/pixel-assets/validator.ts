@@ -521,7 +521,10 @@ function combineStatus(checks: ValidationCheck[]): ValidationStatus {
   if (checks.some((check) => check.status === "FAIL")) {
     return "FAIL";
   }
-  if (checks.some((check) => check.status === "WARN")) {
+  // Content touching a legal 16px boundary is retained as a diagnostic, but
+  // it must not block a formally authored sheet. Stride warnings remain
+  // actionable and continue to surface as an overall WARN.
+  if (checks.some((check) => check.status === "WARN" && check.name !== "Grid Diagnostic")) {
     return "WARN";
   }
   if (checks.length === 0 || checks.every((check) => check.status === "SKIP")) {

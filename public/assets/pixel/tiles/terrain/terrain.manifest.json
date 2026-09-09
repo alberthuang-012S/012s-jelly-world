@@ -7,5 +7,8 @@
   "margin": 0,
   "spacing": 0,
   "expectedWidth": 256,
-  "expectedHeight": 256
+  "expectedHeight": 256,
+  "tileMap": "src/game/assets/terrainTileMap.ts",
+  "authoringScript": "scripts/pixel-assets/build-formal-terrain.ts",
+  "reservedRows": [13, 14, 15]
 }

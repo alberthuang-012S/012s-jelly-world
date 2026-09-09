@@ -151,6 +151,27 @@ artistic meaning or fail a legitimate edge-touching tile. Building, prop, and
 future character sheets reuse the same PNG/alpha parser with their own
 dimension or frame specifications.
 
+The first formal Terrain source is authored by
+`scripts/pixel-assets/build-formal-terrain.ts` using the centralized palette in
+`scripts/pixel-assets/terrainPalette.ts`. It writes each pixel through a
+cell-bounded writer, audits tile indices and write coordinates, and runs seam
+checks for repeated grass, road, water, and bridge tiles. The stable IDs and
+coordinates are recorded in `src/game/assets/terrainTileMap.ts`.
+
+Use:
+
+```bash
+pnpm build:terrain
+pnpm validate:terrain -- --strict public/assets/pixel/tiles/terrain/terrain.png
+pnpm test:assets
+```
+
+The authoring command writes the formal sheet under `public/assets/pixel/` and
+the non-runtime visual inspection scene to
+`validation-output/terrain-preview.png`. The formal sheet is accepted before
+runtime integration; `TerrainLayer`, world layout, actors, collision, camera,
+NPC, and interaction code remain unchanged during this stage.
+
 Optional `--report`, `--json`, `--verbose`, and `--debug-grid` outputs are QA
 artifacts only. A grid debug PNG is written outside the runtime asset tree and
 must never be enabled in the runtime Registry.

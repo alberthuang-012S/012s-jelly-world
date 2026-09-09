@@ -1,6 +1,7 @@
 node_modules/
 dist/
 .vite/
+validation-output/
 .env
 .env.*
 !.env.example

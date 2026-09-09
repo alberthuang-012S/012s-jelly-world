@@ -106,12 +106,20 @@ pnpm validate:terrain -- path/to/terrain.png
 pnpm validate:terrain -- --strict path/to/terrain.png
 pnpm validate:assets -- --json --report --debug-grid
 pnpm test:assets
+pnpm build:terrain
 ```
 
 正式 Terrain 的 manifest 位於
 `public/assets/pixel/tiles/terrain/terrain.manifest.json`：16×16 native tile、
 256×256 sheet、16 columns × 16 rows、margin 0、spacing 0。缺少正式檔案時預設
 輸出 `SKIP / NOT FOUND`；CI 或 acceptance gate 可使用 `--strict` 使其變成 FAIL。
+
+正式 Terrain 由 `scripts/pixel-assets/build-formal-terrain.ts` 以 integer
+16×16 matrix deterministic 產生，不會縮放或裁切 reference。輸出為
+`public/assets/pixel/tiles/terrain/terrain.png`；人工查看用的
+`validation-output/terrain-preview.png` 與 validator report/debug image 永遠
+留在 runtime asset tree 之外。固定 tile ID 與 row/column mapping 集中在
+`src/game/assets/terrainTileMap.ts`，完成 acceptance 前不會切換目前 runtime。
 
 ## GitHub Pages
 
