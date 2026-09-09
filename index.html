@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="zh-Hant">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta name="theme-color" content="#13243d" />
+    <meta
+      name="description"
+      content="012S Jelly World：一個可以探索、對話與玩遊戲的可愛水母世界。"
+    />
+    <title>012S JELLY WORLD｜歡迎來到水母世界</title>
+  </head>
+  <body>
+    <main id="app">
+      <div id="game-shell">
+        <div id="game-container" aria-label="012S Jelly World 遊戲畫布"></div>
+
+        <div class="screen-ui">
+          <header class="hud" aria-label="世界資訊">
+            <div class="hud-brand">
+              <span class="hud-brand-mark">012S</span>
+              <span class="hud-brand-name">JELLY WORLD</span>
+            </div>
+            <div class="hud-zone" id="zone-label">LOBBY / WORLD</div>
+            <div class="hud-help">
+              <span class="desktop-only">WASD / ↑↓←→ 移動　·　E 互動</span>
+              <span class="touch-only">探索水母世界</span>
+            </div>
+          </header>
+
+          <div id="interaction-prompt" class="interaction-prompt" hidden aria-live="polite">
+            <span class="prompt-desktop">
+              <span class="pixel-key">E</span>
+              <span class="prompt-label-desktop">互動</span>
+            </span>
+            <span class="prompt-mobile">
+              <span class="prompt-touch-icon">✦</span>
+              <span class="prompt-label-mobile">互動</span>
+            </span>
+          </div>
+
+          <div class="orientation-hint" aria-live="polite">
+            <span class="orientation-icon">↔</span>
+            <strong>建議將手機旋轉為橫向</strong>
+            <span>以獲得最佳遊戲體驗</span>
+          </div>
+
+          <div id="mobile-controls" class="mobile-controls" aria-label="手機操作">
+            <div class="dpad" aria-label="方向控制">
+              <button type="button" class="dpad-button dpad-up" data-direction="up" aria-label="向上">▲</button>
+              <button type="button" class="dpad-button dpad-left" data-direction="left" aria-label="向左">◀</button>
+              <button type="button" class="dpad-button dpad-right" data-direction="right" aria-label="向右">▶</button>
+              <button type="button" class="dpad-button dpad-down" data-direction="down" aria-label="向下">▼</button>
+              <span class="dpad-center" aria-hidden="true">✦</span>
+            </div>
+            <button id="mobile-interact" class="mobile-interact" type="button" aria-label="互動">
+              <span class="mobile-interact-star">✦</span>
+              <span>互動</span>
+            </button>
+          </div>
+
+          <div id="dialogue-root" class="dialogue-layer" hidden role="dialog" aria-modal="true" aria-labelledby="dialogue-name">
+            <section class="dialogue-card">
+              <div class="dialogue-card-accent" aria-hidden="true"></div>
+              <div class="dialogue-heading">
+                <span class="dialogue-eyebrow">012S WORLD / CHAT</span>
+                <div class="dialogue-speaker">
+                  <h2 id="dialogue-name">角色</h2>
+                  <span id="dialogue-role">角色</span>
+                </div>
+              </div>
+              <p id="dialogue-text" class="dialogue-text"></p>
+              <button id="dialogue-close" class="pixel-button pixel-button-primary" type="button">關閉</button>
+            </section>
+          </div>
+
+          <div id="modal-root" class="modal-layer" hidden role="dialog" aria-modal="true" aria-labelledby="modal-title">
+            <div class="modal-backdrop" data-modal-close="true"></div>
+            <section class="modal-card">
+              <button id="modal-close-icon" class="modal-close-icon" type="button" aria-label="關閉">×</button>
+              <div class="modal-kicker" id="modal-kicker">012S / EVENT</div>
+              <div class="modal-layout">
+                <div class="modal-copy">
+                  <h2 id="modal-title">活動</h2>
+                  <p id="modal-body" class="modal-body"></p>
+                  <div id="modal-status" class="modal-status" hidden></div>
+                  <div class="modal-actions">
+                    <button id="modal-primary" class="pixel-button pixel-button-primary" type="button">查看活動</button>
+                    <button id="modal-secondary" class="pixel-button pixel-button-secondary" type="button">關閉</button>
+                  </div>
+                </div>
+                <div class="modal-placeholder" aria-label="像素產品圖片預留區">
+                  <div class="placeholder-sparkle placeholder-sparkle-one">✦</div>
+                  <div class="placeholder-sparkle placeholder-sparkle-two">✦</div>
+                  <div class="placeholder-product">
+                    <span id="modal-placeholder-title">PPT+1</span>
+                    <small id="modal-placeholder-subtitle">PRODUCT IMAGE</small>
+                  </div>
+                  <span class="placeholder-caption">REFERENCE READY</span>
+                </div>
+              </div>
+            </section>
+          </div>
+
+          <div id="toast" class="toast" hidden role="status"></div>
+
+          <section id="start-screen" class="start-screen" aria-labelledby="start-title">
+            <div class="start-orbit start-orbit-one" aria-hidden="true"></div>
+            <div class="start-orbit start-orbit-two" aria-hidden="true"></div>
+            <div class="start-card">
+              <div class="start-badge">012S / COMMUNITY WORLD</div>
+              <div class="start-jelly-mark" aria-hidden="true">
+                <span class="mark-eye mark-eye-left"></span>
+                <span class="mark-eye mark-eye-right"></span>
+                <span class="mark-tentacle mark-tentacle-left"></span>
+                <span class="mark-tentacle mark-tentacle-center"></span>
+                <span class="mark-tentacle mark-tentacle-right"></span>
+              </div>
+              <p class="start-kicker">WELCOME TO</p>
+              <h1 id="start-title">012S <span>JELLY</span><br />WORLD</h1>
+              <p class="start-subtitle">歡迎來到水母世界</p>
+              <button id="enter-world" class="enter-button" type="button">
+                <span>進入世界</span>
+                <span class="enter-arrow" aria-hidden="true">→</span>
+              </button>
+              <p class="start-footnote">一個可以探索、聊天、玩遊戲的小小世界</p>
+            </div>
+          </section>
+        </div>
+      </div>
+    </main>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>
