@@ -7,7 +7,10 @@
     "dev": "vite",
     "build": "vite build",
     "typecheck": "tsc --noEmit",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "validate:assets": "node --experimental-strip-types scripts/validate-pixel-assets.ts",
+    "validate:terrain": "node --experimental-strip-types scripts/validate-pixel-assets.ts --kind terrain",
+    "test:assets": "node --experimental-strip-types scripts/pixel-assets/validator.test.ts"
   },
   "dependencies": {
     "phaser": "^3.90.0"

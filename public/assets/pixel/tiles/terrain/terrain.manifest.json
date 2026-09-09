@@ -1,0 +1,11 @@
+{
+  "type": "terrain",
+  "tileWidth": 16,
+  "tileHeight": 16,
+  "columns": 16,
+  "rows": 16,
+  "margin": 0,
+  "spacing": 0,
+  "expectedWidth": 256,
+  "expectedHeight": 256
+}

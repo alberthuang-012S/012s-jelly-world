@@ -95,6 +95,24 @@ NPC 台詞集中在 `src/data/dialogues.ts`，每次互動會從指定句子中�
 - 正式素材目前採 `enabled: false`，避免尚未審核的空檔案或假 placeholder 進入 runtime。加入實際 PNG/WebP 並完成檢查後，只需開啟對應 Registry entry
 - 詳細尺寸、色盤、角色／建築規格與樹木雙層排序請見 [`docs/PIXEL_ART_SPEC.md`](docs/PIXEL_ART_SPEC.md)
 
+## Pixel Asset Validation
+
+正式 Pixel Art 進入 `public/assets/pixel/` 前，先使用 validator 檢查 PNG
+尺寸、RGBA alpha、tile/frame grid、occupancy 與 deterministic grid diagnostics：
+
+```bash
+pnpm validate:assets
+pnpm validate:terrain -- path/to/terrain.png
+pnpm validate:terrain -- --strict path/to/terrain.png
+pnpm validate:assets -- --json --report --debug-grid
+pnpm test:assets
+```
+
+正式 Terrain 的 manifest 位於
+`public/assets/pixel/tiles/terrain/terrain.manifest.json`：16×16 native tile、
+256×256 sheet、16 columns × 16 rows、margin 0、spacing 0。缺少正式檔案時預設
+輸出 `SKIP / NOT FOUND`；CI 或 acceptance gate 可使用 `--strict` 使其變成 FAIL。
+
 ## GitHub Pages
 
 Vite 已設定：

@@ -122,3 +122,35 @@ The tree collision is a small explicit trunk rectangle, not the canopy alpha.
   direction only. Formal assets belong under `public/assets/pixel/`.
 - Replace an asset one ID at a time. Logic, collision, interaction, dialogue,
   and sorting should remain stable during the visual migration.
+
+## Formal Asset Acceptance Gate
+
+Before a reviewed file is enabled in the Registry, run the deterministic
+validator:
+
+```bash
+pnpm validate:terrain -- path/to/terrain.png
+pnpm validate:assets -- --strict
+pnpm test:assets
+```
+
+Formal Terrain source sheets use a separate native source grid from the
+current 32px world renderer:
+
+- Native tile: **16×16 px**
+- Sheet: **256×256 px**
+- Grid: **16 columns × 16 rows / 256 cells**
+- Margin: **0**
+- Spacing: **0**
+
+The acceptance gate requires a readable PNG, exact 256×256 dimensions, binary
+alpha (`0` or `255` only), and a complete 16×16 cell cut. Boundary-crossing
+and repeated transparent-separator checks are diagnostics: they report WARN
+when a possible non-16px stride is suspected, but do not pretend to judge
+artistic meaning or fail a legitimate edge-touching tile. Building, prop, and
+future character sheets reuse the same PNG/alpha parser with their own
+dimension or frame specifications.
+
+Optional `--report`, `--json`, `--verbose`, and `--debug-grid` outputs are QA
+artifacts only. A grid debug PNG is written outside the runtime asset tree and
+must never be enabled in the runtime Registry.
