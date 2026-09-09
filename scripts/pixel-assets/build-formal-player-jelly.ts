@@ -241,89 +241,101 @@ export function getPlayerJellyFrameMetrics(
 }
 
 function drawJellyFrame(writer: FrameWriter, direction: PlayerJellyDirection, frame: number): void {
-  const bodyTop = frame === 2 ? 8 : 7;
   drawTentacles(writer, direction, frame);
-  drawBody(writer, direction, frame, bodyTop);
   drawCrown(writer, direction);
+  drawBody(writer, direction, frame);
 
   if (direction === "down") {
-    drawFrontFace(writer, frame, bodyTop);
+    drawFrontFace(writer, frame);
   } else if (direction === "left" || direction === "right") {
-    drawSideFace(writer, direction, bodyTop);
+    drawSideFace(writer, direction, frame);
   } else {
-    drawBackDetail(writer, frame, bodyTop);
+    drawBackDetail(writer, frame);
   }
 }
 
 function drawTentacles(writer: FrameWriter, direction: PlayerJellyDirection, frame: number): void {
   const starts = direction === "left" || direction === "right"
-    ? [4, 7, 10, 13, 16]
-    : [2, 6, 10, 14, 18];
+    ? [5, 8, 11, 14, 17]
+    : [3, 7, 11, 15, 19];
   const endsByFrame: ReadonlyArray<readonly number[]> = [
-    [29, 28, 29, 28, 29],
-    [28, 29, 29, 28, 28],
-    [29, 29, 28, 29, 29],
-    [28, 29, 29, 29, 28],
+    [27, 27, 26, 27, 27],
+    [28, 27, 26, 27, 28],
+    [28, 27, 27, 26, 28],
+    [27, 26, 27, 26, 27],
   ];
   const ends = endsByFrame[frame] ?? endsByFrame[0]!;
-  const swayPatterns: ReadonlyArray<readonly number[]> = [
-    [0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, -1, -1, 0, 0, 0, 0],
-    [0, 0, 1, 1, 0, 0, 0, 0],
-    [0, 0, 1, 1, 1, 0, 0, 0],
+  const swayByFrame: ReadonlyArray<readonly number[]> = [
+    [0, 0, 0, 0, 0],
+    [-1, 0, 0, 0, 1],
+    [1, 0, 0, 0, -1],
+    [0, -1, 0, 1, 0],
   ];
-  const sway = swayPatterns[frame] ?? swayPatterns[0]!;
+  const sway = swayByFrame[frame] ?? swayByFrame[0]!;
 
   for (let index = 0; index < starts.length; index += 1) {
     const startX = starts[index] ?? 0;
-    const endY = ends[index] ?? 30;
-    for (let y = 20; y <= endY; y += 1) {
-      const swayIndex = Math.min(y - 20, sway.length - 1);
-      const directionShift = index % 2 === 0 ? 1 : -1;
-      const shift = (sway[swayIndex] ?? 0) * directionShift;
-      const x = startX + shift;
-      writer.fillRect(x, y, 4, 1, P.outline);
-      if (y === endY) {
-        writer.fillRect(x + 1, y, 2, 1, P.bodyShadow);
-      } else {
-        writer.fillRect(x + 1, y, 2, 1, y >= endY - 2 ? P.bodyShadow : P.bodyBase);
-      }
-    }
+    const endY = ends[index] ?? 27;
+    const outerSide = index === 0 ? "left" : index === starts.length - 1 ? "right" : "none";
+    drawRoundedTentacle(writer, startX, 19, endY, sway[index] ?? 0, outerSide);
   }
 }
 
-function drawBody(
+function drawRoundedTentacle(
   writer: FrameWriter,
-  direction: PlayerJellyDirection,
-  frame: number,
-  top: number,
+  startX: number,
+  startY: number,
+  endY: number,
+  shift: number,
+  outerSide: "left" | "right" | "none",
 ): void {
-  const side = direction === "left" || direction === "right";
-  const left = side ? 5 : 3;
-  const right = side ? 18 : 20;
-  const width = right - left + 1;
-
-  writer.fillRect(left + 4, top, width - 8, 1, P.outline);
-  writer.fillRect(left + 2, top + 1, width - 4, 1, P.outline);
-  writer.fillRect(left + 1, top + 2, width - 2, 2, P.outline);
-  writer.fillRect(left, top + 4, width, 7, P.outline);
-  writer.fillRect(left + 1, top + 11, width - 2, 2, P.outline);
-  writer.fillRect(left + 3, top + 13, width - 6, 1, P.outlineShadow);
-
-  writer.fillRect(left + 5, top + 1, width - 10, 1, P.bodyBase);
-  writer.fillRect(left + 3, top + 2, width - 6, 2, P.bodyBase);
-  writer.fillRect(left + 2, top + 4, width - 4, 6, P.bodyBase);
-  writer.fillRect(left + 2, top + 10, width - 4, 2, P.bodyShadow);
-  writer.fillRect(left + 4, top + 12, width - 8, 1, P.bodyShadow);
-
-  const highlightShift = frame === 3 ? 1 : frame === 1 ? -1 : 0;
-  const highlightX = Math.max(left + 2, Math.min(right - 5, left + 3 + highlightShift));
-  writer.fillRect(highlightX, top + 3, 4, 3, P.bodyHighlight);
-
-  if (direction === "up") {
-    writer.fillRect(left + 3, top + 2, width - 6, 1, P.bodyShadow);
-    writer.fillRect(left + 4, top + 8, width - 8, 2, P.bodyHighlight);
+  const bendStart = Math.max(startY, endY - 3);
+  for (let y = startY; y <= endY; y += 1) {
+    const x = startX + (y >= bendStart ? shift : 0);
+    if (y === endY) {
+      writer.setPixel(x + 1, y, P.bodyShadow);
+      continue;
+    }
+    writer.setPixel(x, y, outerSide === "left" ? P.outlineShadow : P.bodyShadow);
+    writer.setPixel(x + 1, y, y >= endY - 2 ? P.bodyShadow : P.bodyBase);
+    writer.setPixel(x + 2, y, outerSide === "right" ? P.outlineShadow : P.bodyShadow);
   }
+}
+
+function drawBody(writer: FrameWriter, direction: PlayerJellyDirection, frame: number): void {
+  const side = direction === "left" || direction === "right";
+  const left = side ? 4 : 2;
+  const right = side ? 19 : 21;
+  const rowInsets = side
+    ? [4, 2, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 2, 3]
+    : [5, 3, 2, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 2, 3];
+  const squashed = frame === 3;
+
+  for (let row = 0; row < rowInsets.length; row += 1) {
+    if (squashed && row === 0) {
+      continue;
+    }
+    const y = 6 + row;
+    const inset = rowInsets[row] ?? 0;
+    const rowLeft = left + inset;
+    const rowRight = right - inset;
+    const rowWidth = rowRight - rowLeft + 1;
+    writer.fillRect(rowLeft, y, rowWidth, 1, y >= 19 ? P.outlineShadow : P.outline);
+    if (rowWidth > 2) {
+      writer.fillRect(
+        rowLeft + 1,
+        y,
+        rowWidth - 2,
+        1,
+        y >= 16 ? P.bodyShadow : P.bodyBase,
+      );
+    }
+  }
+
+  const highlightShift = frame === 1 ? -1 : frame === 2 ? 1 : 0;
+  const highlightX = Math.max(left + 2, Math.min(right - 4, left + 3 + highlightShift));
+  const highlightY = squashed ? 11 : 10;
+  writer.fillRect(highlightX, highlightY, 3, 2, P.bodyHighlight);
 }
 
 function drawCrown(writer: FrameWriter, direction: PlayerJellyDirection): void {
@@ -336,35 +348,30 @@ function drawCrown(writer: FrameWriter, direction: PlayerJellyDirection): void {
     const top = tops[index] ?? 2;
     writer.fillRect(centre - 1, top, 3, 1, P.outline);
     writer.fillRect(centre - 2, top + 1, 5, 2, P.outline);
-    writer.fillRect(centre - 1, top + 3, 3, 1, P.outline);
-    writer.fillRect(centre, top + 4, 1, 1, P.outline);
-  }
-
-  for (let index = 0; index < centres.length; index += 1) {
-    const centre = centres[index] ?? 12;
-    const top = tops[index] ?? 2;
+    writer.fillRect(centre - 1, top + 3, 3, 2, P.outlineShadow);
     writer.fillRect(centre - 1, top + 1, 3, 1, P.crownHighlight);
-    writer.fillRect(centre - 1, top + 2, 3, 2, P.crownBase);
-    writer.fillRect(centre, top + 4, 1, 1, P.crownShadow);
+    writer.fillRect(centre - 1, top + 2, 3, 1, P.crownBase);
+    writer.fillRect(centre, top + 3, 1, 1, P.crownBase);
+    writer.fillRect(centre, top + 4, 1, 2, P.crownShadow);
   }
-
 }
 
-function drawFrontFace(writer: FrameWriter, frame: number, bodyTop: number): void {
-  const eyeY = bodyTop + 6 + (frame === 2 ? 1 : 0);
+function drawFrontFace(writer: FrameWriter, frame: number): void {
+  const eyeY = 13 + (frame === 2 ? 1 : 0) + (frame === 3 ? 1 : 0);
   writer.fillRect(8, eyeY, 2, 2, P.eye);
   writer.fillRect(15, eyeY, 2, 2, P.eye);
 }
 
-function drawSideFace(writer: FrameWriter, direction: "left" | "right", bodyTop: number): void {
+function drawSideFace(writer: FrameWriter, direction: "left" | "right", frame: number): void {
   const eyeX = direction === "left" ? 7 : 15;
-  writer.fillRect(eyeX, bodyTop + 6, 2, 2, P.eye);
+  writer.fillRect(eyeX, 13 + (frame === 3 ? 1 : 0), 2, 2, P.eye);
 }
 
-function drawBackDetail(writer: FrameWriter, frame: number, bodyTop: number): void {
-  writer.fillRect(8, bodyTop + 4, 8, 1, P.bodyShadow);
+function drawBackDetail(writer: FrameWriter, frame: number): void {
+  const detailY = 11 + (frame === 3 ? 1 : 0);
+  writer.fillRect(8, detailY, 8, 1, P.bodyShadow);
   if (frame === 1 || frame === 3) {
-    writer.fillRect(7, bodyTop + 8, 2, 1, P.bodyHighlight);
+    writer.fillRect(7, detailY + 4, 2, 1, P.bodyHighlight);
   }
 }
 
