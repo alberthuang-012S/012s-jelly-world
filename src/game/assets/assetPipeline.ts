@@ -47,12 +47,15 @@ export function registerPixelAnimations(scene: Phaser.Scene): void {
         continue;
       }
       const start = animation.row * columns;
-      scene.anims.create({
-        key: animation.key,
-        frames: scene.anims.generateFrameNumbers(asset.id, {
+      const frames = animation.sequence
+        ? animation.sequence.map((frame) => ({ key: asset.id, frame: start + frame }))
+        : scene.anims.generateFrameNumbers(asset.id, {
           start,
           end: start + animation.frames - 1,
-        }),
+        });
+      scene.anims.create({
+        key: animation.key,
+        frames,
         frameRate: animation.frameRate,
         repeat: animation.repeat,
       });
@@ -86,6 +89,9 @@ export function createPixelVisual(
       sprite.setOrigin(asset.visual.originX, asset.visual.originY);
       sprite.setDisplaySize(asset.visual.width, asset.visual.height);
     }
+    if (asset.scale !== undefined) {
+      sprite.setScale(asset.scale);
+    }
     if (animationKey && sprite instanceof Phaser.GameObjects.Sprite && scene.anims.exists(animationKey)) {
       sprite.play(animationKey);
     }
@@ -95,6 +101,27 @@ export function createPixelVisual(
   }
 
   return visual;
+}
+
+export function setPixelVisualAnimation(
+  scene: Phaser.Scene,
+  visual: Phaser.GameObjects.Container,
+  id: PixelAssetId,
+  animationKey: string,
+): boolean {
+  if (!isPixelAssetReady(scene, id) || !scene.anims.exists(animationKey)) {
+    return false;
+  }
+
+  const sprite = visual.getAt(0);
+  if (!(sprite instanceof Phaser.GameObjects.Sprite)) {
+    return false;
+  }
+
+  if (sprite.anims.currentAnim?.key !== animationKey) {
+    sprite.play(animationKey);
+  }
+  return true;
 }
 
 function queuePixelAsset(scene: Phaser.Scene, asset: PixelAssetDefinition): void {

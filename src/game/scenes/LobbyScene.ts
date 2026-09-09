@@ -80,7 +80,7 @@ export class LobbyScene extends Phaser.Scene {
 
     const direction = this.inputManager.getMovement();
     const moving = direction.x !== 0 || direction.y !== 0;
-    this.player.setMoving(moving);
+    this.player.setMoving(moving, direction.x, direction.y);
     this.collisionSystem.move(this.player, direction, delta);
     this.player.tick(time);
     this.updateZoneLabel();

@@ -1,3 +1,10 @@
+import {
+  PLAYER_JELLY_ASSET_ID,
+  PLAYER_JELLY_DIRECTION_ROWS,
+  PLAYER_JELLY_DIRECTIONS,
+  PLAYER_JELLY_WALK_SEQUENCE,
+} from "./playerJellyRuntime";
+
 export const PIXEL_SCALE = 1;
 
 export type PixelAssetType = "image" | "spritesheet" | "tileset";
@@ -14,6 +21,7 @@ export interface PixelAnimationDefinition {
   frames: number;
   frameRate: number;
   repeat: number;
+  sequence?: readonly number[];
 }
 
 export interface PixelAssetDefinition {
@@ -35,6 +43,7 @@ export interface PixelAssetDefinition {
     originX: number;
     originY: number;
   };
+  scale?: number;
 }
 
 const pixelAsset = (path: string): string => `${import.meta.env.BASE_URL}assets/pixel/${path}`;
@@ -61,16 +70,21 @@ const characterAsset = (id: string, path: string, prefix: string): PixelAssetDef
   visual: { width: 32, height: 48, originX: 0.5, originY: 0.75 },
 });
 
-const playerJellyAnimations = (prefix: string): readonly PixelAnimationDefinition[] => [
-  { key: `${prefix}-idle-down`, row: 0, frames: 1, frameRate: 1, repeat: -1 },
-  { key: `${prefix}-walk-down`, row: 0, frames: 4, frameRate: 8, repeat: -1 },
-  { key: `${prefix}-idle-left`, row: 1, frames: 1, frameRate: 1, repeat: -1 },
-  { key: `${prefix}-walk-left`, row: 1, frames: 4, frameRate: 8, repeat: -1 },
-  { key: `${prefix}-idle-right`, row: 2, frames: 1, frameRate: 1, repeat: -1 },
-  { key: `${prefix}-walk-right`, row: 2, frames: 4, frameRate: 8, repeat: -1 },
-  { key: `${prefix}-idle-up`, row: 3, frames: 1, frameRate: 1, repeat: -1 },
-  { key: `${prefix}-walk-up`, row: 3, frames: 4, frameRate: 8, repeat: -1 },
-];
+const playerJellyAnimations = (prefix: string): readonly PixelAnimationDefinition[] =>
+  PLAYER_JELLY_DIRECTIONS.flatMap((direction) => {
+    const row = PLAYER_JELLY_DIRECTION_ROWS[direction];
+    return [
+      { key: `${prefix}-idle-${direction}`, row, frames: 1, frameRate: 1, repeat: -1, sequence: [0] },
+      {
+        key: `${prefix}-walk-${direction}`,
+        row,
+        frames: PLAYER_JELLY_WALK_SEQUENCE.length,
+        frameRate: 8,
+        repeat: -1,
+        sequence: PLAYER_JELLY_WALK_SEQUENCE,
+      },
+    ];
+  });
 
 export const PIXEL_ASSETS = {
   "terrain.grass": {
@@ -124,19 +138,20 @@ export const PIXEL_ASSETS = {
     spacing: 0,
     columns: 16,
   },
-  "character.player.jelly": {
-    id: "character.player.jelly",
+  [PLAYER_JELLY_ASSET_ID]: {
+    id: PLAYER_JELLY_ASSET_ID,
     url: pixelAsset("characters/player/player-jelly.png"),
     type: "spritesheet",
     fallback: "procedural-character",
-    enabled: false,
+    enabled: true,
     frameWidth: 24,
     frameHeight: 32,
     margin: 0,
     spacing: 0,
     columns: 4,
     animations: playerJellyAnimations("player-jelly"),
-    visual: { width: 48, height: 64, originX: 0.5, originY: 1 },
+    visual: { width: 24, height: 32, originX: 0.5, originY: 1 },
+    scale: 2,
   },
   "building.lab": {
     id: "building.lab",
