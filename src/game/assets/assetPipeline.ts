@@ -98,7 +98,7 @@ export function createPixelVisual(
 }
 
 function queuePixelAsset(scene: Phaser.Scene, asset: PixelAssetDefinition): void {
-  if (asset.type === "spritesheet") {
+  if (asset.type === "spritesheet" || asset.type === "tileset") {
     if (!asset.frameWidth || !asset.frameHeight) {
       console.warn(`[PixelAsset] ${asset.id} has no spritesheet frame size; using fallback.`);
       return;
@@ -106,6 +106,8 @@ function queuePixelAsset(scene: Phaser.Scene, asset: PixelAssetDefinition): void
     scene.load.spritesheet(asset.id, asset.url, {
       frameWidth: asset.frameWidth,
       frameHeight: asset.frameHeight,
+      margin: asset.margin ?? 0,
+      spacing: asset.spacing ?? 0,
     });
     return;
   }

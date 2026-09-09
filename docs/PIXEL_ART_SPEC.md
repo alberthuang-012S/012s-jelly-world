@@ -168,9 +168,12 @@ pnpm test:assets
 
 The authoring command writes the formal sheet under `public/assets/pixel/` and
 the non-runtime visual inspection scene to
-`validation-output/terrain-preview.png`. The formal sheet is accepted before
-runtime integration; `TerrainLayer`, world layout, actors, collision, camera,
-NPC, and interaction code remain unchanged during this stage.
+`validation-output/terrain-preview.png`. The accepted sheet is now integrated
+through Registry entry `terrain.main`: `TerrainLayer` renders the existing
+grass, road, water, shoreline, bridge, flower, and shrub positions from the
+16px source at 2x logical scale. World layout, actors, collision, camera, NPC,
+and interaction code remain unchanged; missing or failed formal loading falls
+back to the original procedural Graphics renderer.
 
 Optional `--report`, `--json`, `--verbose`, and `--debug-grid` outputs are QA
 artifacts only. A grid debug PNG is written outside the runtime asset tree and

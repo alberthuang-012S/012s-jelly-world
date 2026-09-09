@@ -29,7 +29,8 @@ function define(
 
 /**
  * Stable terrain IDs. This file is intentionally data-only so runtime systems
- * can adopt the IDs in a later integration phase without magic numbers.
+ * can share the IDs across authoring, validation, and runtime integration
+ * without magic numbers.
  */
 export const TERRAIN_TILE_MAP = {
   GRASS_BASE: define("GRASS_BASE", 0, 0, "grass"),

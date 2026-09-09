@@ -2,7 +2,15 @@ import Phaser from "phaser";
 import { announcements } from "../../data/announcements";
 import { arcadeGames } from "../../data/games";
 import { addRegisteredWorldImage } from "./WorldAssetBindings";
-import { createTerrainLayer } from "./TerrainLayer";
+import {
+  addFormalTerrainDecoration,
+  createTerrainLayer,
+  drawFormalBridge,
+  drawFormalRoadRect,
+  drawFormalShoreline,
+  drawFormalWaterBody,
+  type TerrainLayer,
+} from "./TerrainLayer";
 import type { PixelAssetId } from "../assets/assetRegistry";
 
 export const TILE_SIZE = 32;
@@ -77,11 +85,15 @@ type TreeVariant = 0 | 1 | 2;
 export function renderLobby(scene: Phaser.Scene): LobbyLayout {
   const solids: Phaser.Geom.Rectangle[] = [];
   const terrainLayer = createTerrainLayer(scene, WORLD_WIDTH, WORLD_HEIGHT, drawGrassTerrain);
-  drawMainRoads(terrainLayer.detail);
-  drawWaterways(scene, solids);
+  if (terrainLayer.usesFormalTerrain) {
+    drawFormalMainRoads(scene, terrainLayer);
+  } else {
+    drawMainRoads(terrainLayer.detail);
+  }
+  drawWaterways(scene, solids, terrainLayer);
   drawNaturalBoundary(scene, solids);
   drawTownGate(scene, solids);
-  drawCentralPlaza(scene);
+  drawCentralPlaza(scene, terrainLayer);
 
   drawLabBuilding(scene, solids);
   drawLiveBuilding(scene, solids);
@@ -89,7 +101,7 @@ export function renderLobby(scene: Phaser.Scene): LobbyLayout {
   drawArcadeCenter(scene, solids);
   drawEventBoard(scene, solids);
   drawTownProps(scene, solids);
-  drawFlowersAndShrubs(scene);
+  drawFlowersAndShrubs(scene, terrainLayer);
 
   return {
     solids,
@@ -151,8 +163,7 @@ function drawGrassTerrain(g: Phaser.GameObjects.Graphics): void {
   }
 }
 
-function drawMainRoads(g: Phaser.GameObjects.Graphics): void {
-  const segments = [
+const MAIN_ROAD_SEGMENTS = [
     [828, 68, 144, 852],
     [120, 532, 1515, 128],
     [394, 398, 112, 195],
@@ -163,7 +174,16 @@ function drawMainRoads(g: Phaser.GameObjects.Graphics): void {
     [1400, 865, 112, 285],
   ] as const;
 
+function drawMainRoads(g: Phaser.GameObjects.Graphics): void {
+  const segments = MAIN_ROAD_SEGMENTS;
+
   segments.forEach(([x, y, width, height]) => drawStoneRoad(g, x, y, width, height));
+}
+
+function drawFormalMainRoads(scene: Phaser.Scene, terrainLayer: TerrainLayer): void {
+  MAIN_ROAD_SEGMENTS.forEach(([x, y, width, height]) => {
+    drawFormalRoadRect(terrainLayer, scene, x, y, width, height);
+  });
 }
 
 function drawStoneRoad(
@@ -245,13 +265,21 @@ function drawRoadTile(
   }
 }
 
-function drawWaterways(scene: Phaser.Scene, solids: Phaser.Geom.Rectangle[]): void {
+function drawWaterways(scene: Phaser.Scene, solids: Phaser.Geom.Rectangle[], terrainLayer: TerrainLayer): void {
   const water = scene.add.graphics().setDepth(1);
-  drawWaterBody(water, 0, 124, 146, 850, 3);
-  drawWaterBody(water, 1616, 846, 184, 280, 11);
-  drawShoreline(water, 146, 124, 850, "right");
-  drawShoreline(water, 1616, 846, 280, "left");
-  drawShoreline(water, 1616, 846, 184, "top");
+  if (terrainLayer.usesFormalTerrain) {
+    drawFormalWaterBody(terrainLayer, scene, 0, 124, 146, 850, 3);
+    drawFormalWaterBody(terrainLayer, scene, 1616, 846, 184, 280, 11);
+    drawFormalShoreline(terrainLayer, scene, 146, 124, 850, "right");
+    drawFormalShoreline(terrainLayer, scene, 1616, 846, 280, "left");
+    drawFormalShoreline(terrainLayer, scene, 1616, 846, 184, "top");
+  } else {
+    drawWaterBody(water, 0, 124, 146, 850, 3);
+    drawWaterBody(water, 1616, 846, 184, 280, 11);
+    drawShoreline(water, 146, 124, 850, "right");
+    drawShoreline(water, 1616, 846, 280, "left");
+    drawShoreline(water, 1616, 846, 184, "top");
+  }
 
   drawLilyPad(water, 55, 326, 1);
   drawLilyPad(water, 102, 748, 0);
@@ -261,7 +289,11 @@ function drawWaterways(scene: Phaser.Scene, solids: Phaser.Geom.Rectangle[]): vo
   drawRock(scene, 150, 250, 1.2);
   drawRock(scene, 152, 820, 0.9);
   drawRock(scene, 1602, 1050, 1.1);
-  drawBridge(scene, 1558, 948);
+  if (terrainLayer.usesFormalTerrain) {
+    drawFormalBridge(terrainLayer, scene, 1558, 948);
+  } else {
+    drawBridge(scene, 1558, 948);
+  }
 
   // The bridge is the only walkable break in the small east pond.
   solids.push(new Phaser.Geom.Rectangle(0, 124, 146, 850));
@@ -441,9 +473,13 @@ function drawGatePillar(g: Phaser.GameObjects.Graphics, x: number, y: number): v
   g.fillRect(x - 27, y - 5, 54, 11);
 }
 
-function drawCentralPlaza(scene: Phaser.Scene): void {
+function drawCentralPlaza(scene: Phaser.Scene, terrainLayer: TerrainLayer): void {
   const plaza = scene.add.graphics().setDepth(1);
-  drawStoneRoad(plaza, 650, 390, 500, 325);
+  if (terrainLayer.usesFormalTerrain) {
+    drawFormalRoadRect(terrainLayer, scene, 650, 390, 500, 325);
+  } else {
+    drawStoneRoad(plaza, 650, 390, 500, 325);
+  }
   drawPlazaGrassIsland(plaza, 690, 414, 78, 62, 0);
   drawPlazaGrassIsland(plaza, 1032, 414, 78, 62, 1);
   drawPlazaGrassIsland(plaza, 838, 603, 92, 34, 2);
@@ -1167,17 +1203,31 @@ function drawPlant(scene: Phaser.Scene, x: number, y: number, scale: number): vo
   g.fillRect(x + p(8), y - p(21), p(5), p(3));
 }
 
-function drawFlowersAndShrubs(scene: Phaser.Scene): void {
+function drawFlowersAndShrubs(scene: Phaser.Scene, terrainLayer: TerrainLayer): void {
   const flowers: Array<[number, number, number]> = [
     [260, 126, 0], [612, 112, 1], [730, 286, 3], [1085, 292, 2], [1140, 520, 1],
     [1250, 510, 0], [1510, 515, 3], [550, 770, 2], [1220, 780, 1], [1480, 820, 0],
     [220, 1100, 3], [1515, 1100, 2],
   ];
-  flowers.forEach(([x, y, variant]) => drawFlower(scene, x, y, variant));
+  if (terrainLayer.usesFormalTerrain) {
+    const flowerTiles = ["FLOWER_WHITE", "FLOWER_YELLOW", "FLOWER_PINK", "FLOWER_PURPLE"] as const;
+    flowers.forEach(([x, y, variant]) => {
+      addFormalTerrainDecoration(terrainLayer, scene, flowerTiles[variant] ?? "FLOWER_WHITE", x, y);
+    });
+  } else {
+    flowers.forEach(([x, y, variant]) => drawFlower(scene, x, y, variant));
+  }
   const shrubs: Array<[number, number, TreeVariant]> = [
     [320, 518, 0], [585, 519, 1], [1175, 518, 2], [1580, 520, 0], [565, 800, 1], [1235, 805, 2],
   ];
-  shrubs.forEach(([x, y, variant]) => drawShrub(scene, x, y, variant));
+  if (terrainLayer.usesFormalTerrain) {
+    const shrubTiles = ["SHRUB_SMALL", "SHRUB_ROUND", "SHRUB_BLOOM"] as const;
+    shrubs.forEach(([x, y, variant]) => {
+      addFormalTerrainDecoration(terrainLayer, scene, shrubTiles[variant] ?? "SHRUB_SMALL", x, y);
+    });
+  } else {
+    shrubs.forEach(([x, y, variant]) => drawShrub(scene, x, y, variant));
+  }
 }
 
 function drawFlower(scene: Phaser.Scene, x: number, y: number, variant: number): void {

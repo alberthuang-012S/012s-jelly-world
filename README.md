@@ -92,7 +92,7 @@ NPC 台詞集中在 `src/data/dialogues.ts`，每次互動會從指定句子中�
 - Registry：`src/game/assets/assetRegistry.ts`
 - 唯一 preload 入口：`src/game/scenes/BootScene.ts`
 - 視覺 fallback 與正式 Sprite 共用同一個 actor visual root；邏輯、碰撞、互動與對話不依賴圖片 alpha
-- 正式素材目前採 `enabled: false`，避免尚未審核的空檔案或假 placeholder 進入 runtime。加入實際 PNG/WebP 並完成檢查後，只需開啟對應 Registry entry
+- `terrain.main` 已完成 acceptance 並採 `enabled: true`；其他尚未審核的 PNG/WebP 仍維持 `enabled: false`，避免空檔案或假 placeholder 進入 runtime
 - 詳細尺寸、色盤、角色／建築規格與樹木雙層排序請見 [`docs/PIXEL_ART_SPEC.md`](docs/PIXEL_ART_SPEC.md)
 
 ## Pixel Asset Validation
@@ -119,7 +119,9 @@ pnpm build:terrain
 `public/assets/pixel/tiles/terrain/terrain.png`；人工查看用的
 `validation-output/terrain-preview.png` 與 validator report/debug image 永遠
 留在 runtime asset tree 之外。固定 tile ID 與 row/column mapping 集中在
-`src/game/assets/terrainTileMap.ts`，完成 acceptance 前不會切換目前 runtime。
+`src/game/assets/terrainTileMap.ts`；正式 Terrain runtime 只透過 Registry 的 `terrain.main`
+載入 `public/assets/pixel/tiles/terrain/terrain.png`，不會讀取 `reference/` 或
+`validation-output/`。
 
 ## GitHub Pages
 

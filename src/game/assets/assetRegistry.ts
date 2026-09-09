@@ -25,6 +25,8 @@ export interface PixelAssetDefinition {
   enabled: boolean;
   frameWidth?: number;
   frameHeight?: number;
+  margin?: number;
+  spacing?: number;
   columns?: number;
   animations?: readonly PixelAnimationDefinition[];
   visual?: {
@@ -87,14 +89,29 @@ export const PIXEL_ASSETS = {
     frameWidth: 32,
     frameHeight: 32,
   },
+  "terrain.main": {
+    id: "terrain.main",
+    url: pixelAsset("tiles/terrain/terrain.png"),
+    type: "tileset",
+    fallback: "procedural-terrain",
+    enabled: true,
+    frameWidth: 16,
+    frameHeight: 16,
+    margin: 0,
+    spacing: 0,
+    columns: 16,
+  },
   "terrain.edge": {
     id: "terrain.edge",
     url: pixelAsset("tiles/terrain/terrain.png"),
     type: "tileset",
     fallback: "procedural-terrain",
     enabled: false,
-    frameWidth: 32,
-    frameHeight: 32,
+    frameWidth: 16,
+    frameHeight: 16,
+    margin: 0,
+    spacing: 0,
+    columns: 16,
   },
   "building.lab": {
     id: "building.lab",
