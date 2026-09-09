@@ -1,10 +1,12 @@
 import Phaser from "phaser";
+import { createPixelVisual } from "../assets/assetPipeline";
+import { createPlayerJellyFallback } from "../assets/fallbackArt";
 
 export class PlayerJelly extends Phaser.GameObjects.Container {
   public readonly collisionWidth = 34;
   public readonly collisionHeight = 38;
 
-  private readonly visual: Phaser.GameObjects.Graphics;
+  private readonly visual: Phaser.GameObjects.Container;
   private readonly shadow: Phaser.GameObjects.Graphics;
   private moving = false;
   private lastUpdate = 0;
@@ -20,8 +22,7 @@ export class PlayerJelly extends Phaser.GameObjects.Container {
     this.shadow.fillRect(-10, 33, 20, 2);
     this.add(this.shadow);
 
-    this.visual = new Phaser.GameObjects.Graphics(scene);
-    this.drawJelly();
+    this.visual = createPixelVisual(scene, "character.player", createPlayerJellyFallback);
     this.add(this.visual);
 
     scene.add.existing(this);
@@ -54,48 +55,4 @@ export class PlayerJelly extends Phaser.GameObjects.Container {
     );
   }
 
-  private drawJelly(): void {
-    const g = this.visual;
-    g.clear();
-
-    // Stepped dome, soft highlights and separated tentacles make the sprite read as jelly.
-    g.fillStyle(0x24324a, 1);
-    g.fillRect(-9, -32, 18, 4);
-    g.fillRect(-16, -28, 32, 5);
-    g.fillRect(-21, -23, 42, 8);
-    g.fillRect(-23, -15, 46, 18);
-    g.fillRect(-20, 3, 40, 7);
-
-    g.fillStyle(0x4aaac5, 1);
-    g.fillRect(-9, -28, 18, 3);
-    g.fillRect(-15, -24, 30, 6);
-    g.fillRect(-18, -17, 36, 18);
-    g.fillRect(-15, 1, 30, 7);
-    g.fillStyle(0x79d3dc, 1);
-    g.fillRect(-12, -21, 24, 9);
-    g.fillRect(-15, -12, 30, 12);
-    g.fillStyle(0x9ae3e1, 0.9);
-    g.fillRect(-8, -20, 9, 6);
-    g.fillRect(-12, -12, 5, 5);
-    g.fillStyle(0xc9f1dc, 0.85);
-    g.fillRect(-8, -24, 6, 3);
-
-    g.fillStyle(0x24324a, 1);
-    g.fillRect(-10, -5, 5, 6);
-    g.fillRect(5, -5, 5, 6);
-    g.fillStyle(0xd36579, 1);
-    g.fillRect(-4, 4, 8, 3);
-    g.fillStyle(0x3c8fae, 1);
-    g.fillRect(-17, 8, 7, 14);
-    g.fillRect(-5, 8, 8, 20);
-    g.fillRect(10, 8, 7, 15);
-    g.fillStyle(0x67c5d3, 1);
-    g.fillRect(-14, 10, 3, 10);
-    g.fillRect(-2, 10, 3, 16);
-    g.fillRect(12, 10, 3, 11);
-    g.fillStyle(0x2f718c, 1);
-    g.fillRect(-17, 19, 7, 4);
-    g.fillRect(-5, 25, 8, 4);
-    g.fillRect(10, 20, 7, 4);
-  }
 }

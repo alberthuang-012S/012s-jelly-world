@@ -11,6 +11,7 @@
 - 32px tile-based 草地、石板道路、水道、橋樑、樹木、圍欄與中央廣場
 - Phase 1.2 Pixel Art polish：統一 GBA 風格色盤、硬邊陰影、地形細節、建築層次與角色 Y 軸遮擋
 - Phase 1.3 Visual Cohesion：細碎草地紋理、縮小石板視覺顆粒、戶外建築外觀、中央廣場草地島與 Camera deadzone
+- Phase 1.4 Pixel Art Asset Pipeline：集中 Registry、BootScene preload、正式素材 fallback、Sprite/Sprite Sheet ready actors、可替換建築／地形／道具圖層
 - 以 `reference/jelly-world-visual-direction.png` 為視覺方向參考的探索式 RPG 世界配置
 - 螢幕跟隨玩家的探索鏡頭，支援在完整 1800×1200 世界中移動
 - WASD、方向鍵與手機 D-pad 移動
@@ -84,6 +85,15 @@ NPC 台詞集中在 `src/data/dialogues.ts`，每次互動會從指定句子中�
 ## Reference
 
 `reference/` 用於放置 PPT+1、未來產品、角色與視覺參考。Phase 1 的 runtime 不依賴該資料夾內的圖片，因此缺少圖片時仍可正常啟動。
+
+## Pixel Art Pipeline
+
+- 正式素材根目錄：`public/assets/pixel/`
+- Registry：`src/game/assets/assetRegistry.ts`
+- 唯一 preload 入口：`src/game/scenes/BootScene.ts`
+- 視覺 fallback 與正式 Sprite 共用同一個 actor visual root；邏輯、碰撞、互動與對話不依賴圖片 alpha
+- 正式素材目前採 `enabled: false`，避免尚未審核的空檔案或假 placeholder 進入 runtime。加入實際 PNG/WebP 並完成檢查後，只需開啟對應 Registry entry
+- 詳細尺寸、色盤、角色／建築規格與樹木雙層排序請見 [`docs/PIXEL_ART_SPEC.md`](docs/PIXEL_ART_SPEC.md)
 
 ## GitHub Pages
 

@@ -1,6 +1,9 @@
 import Phaser from "phaser";
 import { announcements } from "../../data/announcements";
 import { arcadeGames } from "../../data/games";
+import { addRegisteredWorldImage } from "./WorldAssetBindings";
+import { createTerrainLayer } from "./TerrainLayer";
+import type { PixelAssetId } from "../assets/assetRegistry";
 
 export const TILE_SIZE = 32;
 export const WORLD_WIDTH = 1800;
@@ -73,12 +76,8 @@ type TreeVariant = 0 | 1 | 2;
 
 export function renderLobby(scene: Phaser.Scene): LobbyLayout {
   const solids: Phaser.Geom.Rectangle[] = [];
-  const terrain = new Phaser.GameObjects.Graphics(scene);
-  terrain.setDepth(0);
-  scene.add.existing(terrain);
-
-  drawGrassTerrain(terrain);
-  drawMainRoads(terrain);
+  const terrainLayer = createTerrainLayer(scene, WORLD_WIDTH, WORLD_HEIGHT, drawGrassTerrain);
+  drawMainRoads(terrainLayer.detail);
   drawWaterways(scene, solids);
   drawNaturalBoundary(scene, solids);
   drawTownGate(scene, solids);
@@ -502,6 +501,7 @@ function drawPlazaGrassIsland(
 
 function drawLabBuilding(scene: Phaser.Scene, solids: Phaser.Geom.Rectangle[]): void {
   drawBuilding(scene, {
+    assetId: "building.lab",
     x: 250,
     y: 185,
     width: 400,
@@ -522,6 +522,7 @@ function drawLabBuilding(scene: Phaser.Scene, solids: Phaser.Geom.Rectangle[]): 
 
 function drawLiveBuilding(scene: Phaser.Scene, solids: Phaser.Geom.Rectangle[]): void {
   drawBuilding(scene, {
+    assetId: "building.live",
     x: 1190,
     y: 185,
     width: 390,
@@ -544,6 +545,7 @@ function drawLiveBuilding(scene: Phaser.Scene, solids: Phaser.Geom.Rectangle[]):
 
 function drawInfoBooth(scene: Phaser.Scene, solids: Phaser.Geom.Rectangle[]): void {
   drawBuilding(scene, {
+    assetId: "building.info",
     x: 1340,
     y: 570,
     width: 320,
@@ -570,72 +572,82 @@ function drawArcadeCenter(scene: Phaser.Scene, solids: Phaser.Geom.Rectangle[]):
   const y = 850;
   const width = 970;
   const height = 246;
-  const g = scene.add.graphics().setDepth(2);
-
-  g.fillStyle(COLORS.shadow, 0.7);
-  g.fillRect(x + 16, y + 18, width, height);
-  g.fillStyle(COLORS.arcadeWallDark, 1);
-  g.fillRect(x + 18, y + 64, width - 36, height - 64);
-  g.fillStyle(COLORS.arcadeWall, 1);
-  g.fillRect(x + 28, y + 78, width - 56, height - 92);
-  for (let panelX = x + 38; panelX < x + width - 38; panelX += TILE_SIZE) {
-    g.fillStyle(panelX % 64 === 0 ? 0xe6eeee : COLORS.arcadeWallDark, 0.28);
-    g.fillRect(panelX, y + 84, 2, 106);
-  }
-
-  g.fillStyle(COLORS.ink, 1);
-  g.fillRect(x + 8, y + 22, width - 16, 58);
-  g.fillStyle(COLORS.arcadeRoofDark, 1);
-  g.fillRect(x, y + 18, width, 58);
-  g.fillStyle(COLORS.arcadeRoof, 1);
-  g.fillRect(x + 18, y + 7, width - 36, 20);
-  g.fillStyle(COLORS.arcadeRoofLight, 1);
-  g.fillRect(x + 38, y + 10, width - 76, 6);
-  for (let roofX = x + 12; roofX < x + width - 12; roofX += TILE_SIZE) {
-    g.fillStyle(COLORS.arcadeRoofDark, 0.85);
-    g.fillRect(roofX, y + 31, 4, 37);
-    g.fillStyle(COLORS.arcadeRoofLight, 0.55);
-    g.fillRect(roofX + 6, y + 27, 3, 30);
-  }
-
-  g.fillStyle(COLORS.paper, 1);
-  g.fillRect(x + width / 2 - 130, y + 20, 260, 46);
-  g.fillStyle(COLORS.ink, 1);
-  g.fillRect(x + width / 2 - 130, y + 20, 260, 4);
-  g.fillRect(x + width / 2 - 130, y + 62, 260, 4);
-  const sign = scene.add.text(x + width / 2, y + 44, "ARCADE", {
-    fontFamily: "monospace",
-    fontSize: "23px",
-    color: "#24324a",
-    fontStyle: "bold",
-    letterSpacing: 4,
+  const formalArt = addRegisteredWorldImage(scene, "building.arcade", {
+    x: x + width / 2,
+    y: y + height / 2,
+    width,
+    height,
+    depth: 2,
   });
-  sign.setOrigin(0.5).setDepth(5);
 
-  // Open front, columns and a central doorway give the game center a real facade.
-  g.fillStyle(COLORS.arcadeWallDark, 1);
-  g.fillRect(x + 25, y + 75, 22, height - 82);
-  g.fillRect(x + width - 47, y + 75, 22, height - 82);
-  g.fillStyle(COLORS.inkSoft, 1);
-  g.fillRect(x + 31, y + 79, 5, height - 90);
-  g.fillRect(x + width - 36, y + 79, 5, height - 90);
-  g.fillStyle(0xf0dcae, 1);
-  g.fillRect(x + width / 2 - 54, y + 91, 108, 98);
-  g.fillStyle(0x5ea9c4, 1);
-  g.fillRect(x + width / 2 - 40, y + 103, 80, 65);
-  g.fillStyle(COLORS.inkSoft, 1);
-  g.fillRect(x + width / 2 - 8, y + 132, 16, 36);
-  g.fillStyle(COLORS.roadHighlight, 1);
-  g.fillRect(x + width / 2 - 4, y + 145, 4, 4);
-  g.fillStyle(COLORS.ink, 1);
-  g.fillRect(x + 52, y + 196, width - 104, 9);
-  for (let lightX = x + 124; lightX < x + width - 90; lightX += 178) {
+  if (!formalArt) {
+    const g = scene.add.graphics().setDepth(2);
+
+    g.fillStyle(COLORS.shadow, 0.7);
+    g.fillRect(x + 16, y + 18, width, height);
+    g.fillStyle(COLORS.arcadeWallDark, 1);
+    g.fillRect(x + 18, y + 64, width - 36, height - 64);
+    g.fillStyle(COLORS.arcadeWall, 1);
+    g.fillRect(x + 28, y + 78, width - 56, height - 92);
+    for (let panelX = x + 38; panelX < x + width - 38; panelX += TILE_SIZE) {
+      g.fillStyle(panelX % 64 === 0 ? 0xe6eeee : COLORS.arcadeWallDark, 0.28);
+      g.fillRect(panelX, y + 84, 2, 106);
+    }
+
     g.fillStyle(COLORS.ink, 1);
-    g.fillRect(lightX, y + 77, 8, 24);
-    g.fillStyle(0xffdf79, 1);
-    g.fillRect(lightX - 4, y + 96, 16, 9);
-    g.fillStyle(0xfff2aa, 1);
-    g.fillRect(lightX, y + 98, 6, 4);
+    g.fillRect(x + 8, y + 22, width - 16, 58);
+    g.fillStyle(COLORS.arcadeRoofDark, 1);
+    g.fillRect(x, y + 18, width, 58);
+    g.fillStyle(COLORS.arcadeRoof, 1);
+    g.fillRect(x + 18, y + 7, width - 36, 20);
+    g.fillStyle(COLORS.arcadeRoofLight, 1);
+    g.fillRect(x + 38, y + 10, width - 76, 6);
+    for (let roofX = x + 12; roofX < x + width - 12; roofX += TILE_SIZE) {
+      g.fillStyle(COLORS.arcadeRoofDark, 0.85);
+      g.fillRect(roofX, y + 31, 4, 37);
+      g.fillStyle(COLORS.arcadeRoofLight, 0.55);
+      g.fillRect(roofX + 6, y + 27, 3, 30);
+    }
+
+    g.fillStyle(COLORS.paper, 1);
+    g.fillRect(x + width / 2 - 130, y + 20, 260, 46);
+    g.fillStyle(COLORS.ink, 1);
+    g.fillRect(x + width / 2 - 130, y + 20, 260, 4);
+    g.fillRect(x + width / 2 - 130, y + 62, 260, 4);
+    const sign = scene.add.text(x + width / 2, y + 44, "ARCADE", {
+      fontFamily: "monospace",
+      fontSize: "23px",
+      color: "#24324a",
+      fontStyle: "bold",
+      letterSpacing: 4,
+    });
+    sign.setOrigin(0.5).setDepth(5);
+
+    // Open front, columns and a central doorway give the game center a real facade.
+    g.fillStyle(COLORS.arcadeWallDark, 1);
+    g.fillRect(x + 25, y + 75, 22, height - 82);
+    g.fillRect(x + width - 47, y + 75, 22, height - 82);
+    g.fillStyle(COLORS.inkSoft, 1);
+    g.fillRect(x + 31, y + 79, 5, height - 90);
+    g.fillRect(x + width - 36, y + 79, 5, height - 90);
+    g.fillStyle(0xf0dcae, 1);
+    g.fillRect(x + width / 2 - 54, y + 91, 108, 98);
+    g.fillStyle(0x5ea9c4, 1);
+    g.fillRect(x + width / 2 - 40, y + 103, 80, 65);
+    g.fillStyle(COLORS.inkSoft, 1);
+    g.fillRect(x + width / 2 - 8, y + 132, 16, 36);
+    g.fillStyle(COLORS.roadHighlight, 1);
+    g.fillRect(x + width / 2 - 4, y + 145, 4, 4);
+    g.fillStyle(COLORS.ink, 1);
+    g.fillRect(x + 52, y + 196, width - 104, 9);
+    for (let lightX = x + 124; lightX < x + width - 90; lightX += 178) {
+      g.fillStyle(COLORS.ink, 1);
+      g.fillRect(lightX, y + 77, 8, 24);
+      g.fillStyle(0xffdf79, 1);
+      g.fillRect(lightX - 4, y + 96, 16, 9);
+      g.fillStyle(0xfff2aa, 1);
+      g.fillRect(lightX, y + 98, 6, 4);
+    }
   }
   // The arcade is an open-front game center. Keep the side columns solid, but
   // leave the machine row reachable so the interaction radius is usable.
@@ -650,6 +662,15 @@ function drawEventBoard(scene: Phaser.Scene, solids: Phaser.Geom.Rectangle[]): v
   const x = 900;
   const y = 480;
   const boardWidth = 132;
+  const formalArt = addRegisteredWorldImage(scene, "event.board", {
+    x,
+    y,
+    depth: y + 76,
+  });
+  if (formalArt) {
+    solids.push(new Phaser.Geom.Rectangle(x - 66, y - 40, boardWidth, 60));
+    return;
+  }
   const g = scene.add.graphics().setDepth(y + 76);
 
   // Smaller than Phase 1.1: it reads as a world prop, while the Modal carries details.
@@ -715,6 +736,7 @@ function drawPinnedNotice(
 function drawBuilding(
   scene: Phaser.Scene,
   config: {
+    assetId: PixelAssetId;
     x: number;
     y: number;
     width: number;
@@ -730,6 +752,38 @@ function drawBuilding(
     compact?: boolean;
   },
   solids: Phaser.Geom.Rectangle[],
+): void {
+  const formalArt = addRegisteredWorldImage(scene, config.assetId, {
+    x: config.x + config.width / 2,
+    y: config.y + config.height / 2,
+    width: config.width,
+    height: config.height,
+    depth: 2,
+  });
+  if (!formalArt) {
+    drawBuildingFallback(scene, config);
+  }
+  addBuildingCollision(config, solids);
+}
+
+function drawBuildingFallback(
+  scene: Phaser.Scene,
+  config: {
+    assetId: PixelAssetId;
+    x: number;
+    y: number;
+    width: number;
+    height: number;
+    label: string;
+    roof: number;
+    roofDark: number;
+    roofLight: number;
+    wall: number;
+    wallDark: number;
+    trim: number;
+    window: number;
+    compact?: boolean;
+  },
 ): void {
   const g = scene.add.graphics().setDepth(2);
   const { x, y, width, height } = config;
@@ -783,7 +837,28 @@ function drawBuilding(
   drawWindow(g, x + 72, bodyTop + 37, config.window);
   drawWindow(g, x + width - 124, bodyTop + 37, config.window);
   drawDoor(g, x + width / 2, bodyBottom - 68, config.trim);
-  solids.push(new Phaser.Geom.Rectangle(x + 23, bodyTop + 5, width - 46, Math.max(52, bodyHeight - 86)));
+}
+
+function addBuildingCollision(
+  config: {
+    x: number;
+    y: number;
+    width: number;
+    height: number;
+    compact?: boolean;
+  },
+  solids: Phaser.Geom.Rectangle[],
+): void {
+  const roofHeight = config.compact ? 54 : 68;
+  const bodyTop = config.y + roofHeight + 18;
+  const bodyBottom = config.y + config.height - 12;
+  const bodyHeight = bodyBottom - bodyTop;
+  solids.push(new Phaser.Geom.Rectangle(
+    config.x + 23,
+    bodyTop + 5,
+    config.width - 46,
+    Math.max(52, bodyHeight - 86),
+  ));
 }
 
 function drawWindow(g: Phaser.GameObjects.Graphics, x: number, y: number, glass: number): void {
@@ -966,6 +1041,15 @@ function drawTownProps(scene: Phaser.Scene, solids: Phaser.Geom.Rectangle[]): vo
 }
 
 function drawBench(scene: Phaser.Scene, x: number, y: number, solids: Phaser.Geom.Rectangle[]): void {
+  const formalArt = addRegisteredWorldImage(scene, "prop.bench", {
+    x,
+    y,
+    depth: y + 20,
+  });
+  if (formalArt) {
+    solids.push(new Phaser.Geom.Rectangle(x - 39, y - 29, 78, 46));
+    return;
+  }
   const g = scene.add.graphics().setDepth(y + 20);
   g.fillStyle(COLORS.shadow, 0.45);
   g.fillRect(x - 42, y + 13, 84, 7);
@@ -985,6 +1069,15 @@ function drawBench(scene: Phaser.Scene, x: number, y: number, solids: Phaser.Geo
 }
 
 function drawLamp(scene: Phaser.Scene, x: number, y: number, solids: Phaser.Geom.Rectangle[]): void {
+  const formalArt = addRegisteredWorldImage(scene, "prop.lamp", {
+    x,
+    y,
+    depth: y + 24,
+  });
+  if (formalArt) {
+    solids.push(new Phaser.Geom.Rectangle(x - 8, y - 1, 16, 17));
+    return;
+  }
   const g = scene.add.graphics().setDepth(y + 24);
   g.fillStyle(COLORS.shadow, 0.42);
   g.fillRect(x - 14, y + 8, 28, 6);
@@ -1128,12 +1221,26 @@ function addTree(
   scale: number,
   variant: TreeVariant = 0,
 ): void {
-  const g = scene.add.graphics().setDepth(y + 48);
+  const formalArt = addRegisteredWorldImage(scene, "prop.tree", {
+    x,
+    y,
+    width: Math.round(64 * scale),
+    height: Math.round(88 * scale),
+    depth: y + 48,
+  });
+  if (formalArt) {
+    solids.push(new Phaser.Geom.Rectangle(x - 21 * scale, y - 3 * scale, 42 * scale, 43 * scale));
+    return;
+  }
+
+  const trunk = scene.add.graphics().setDepth(y + 30);
+  const canopy = scene.add.graphics().setDepth(y + 48);
+  let g = trunk;
   const p = (value: number) => Math.round(value * scale);
   const mid = variant === 1 ? 0x5f9f68 : variant === 2 ? 0x57936d : COLORS.grassDark;
   const highlight = variant === 1 ? 0xa0d185 : variant === 2 ? 0x8ac47d : COLORS.grassLight;
 
-  // Pixel shadow, trunk and canopy are drawn as one sorted object.
+  // Trunk/body stays behind the player; canopy/front can pass in front of it.
   g.fillStyle(COLORS.shadow, 0.46);
   g.fillRect(x - p(25), y + p(26), p(50), p(8));
   g.fillRect(x - p(16), y + p(33), p(32), p(4));
@@ -1144,6 +1251,7 @@ function addTree(
   g.fillStyle(0xa96d4c, 1);
   g.fillRect(x - p(3), y + p(9), p(5), p(24));
 
+  g = canopy;
   g.fillStyle(COLORS.grassDeep, 1);
   g.fillRect(x - p(28), y - p(18), p(56), p(43));
   g.fillRect(x - p(22), y - p(30), p(44), p(18));
