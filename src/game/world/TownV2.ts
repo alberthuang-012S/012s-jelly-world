@@ -5,13 +5,18 @@ export const WORLD_WIDTH = 1536;
 export const WORLD_HEIGHT = 1792;
 // Enable when the reserved southern arcade is ready to open.
 export const SOUTH_PLAZA_OPEN = false;
+export const ACTIVE_WORLD_HEIGHT = SOUTH_PLAZA_OPEN ? WORLD_HEIGHT : 1080;
 export const WORLD_BOUNDS = new Phaser.Geom.Rectangle(270, 180, 1220, SOUTH_PLAZA_OPEN ? 1532 : 800);
 
 // All coordinates use the production town plate's 1536 × 1024 coordinate system.
 export function renderTownV2(scene: Phaser.Scene): LobbyLayout {
   scene.add.image(0, 0, "town-v2").setOrigin(0).setDepth(0);
-  renderSouthPlaza(scene);
-  if (!SOUTH_PLAZA_OPEN) renderSouthGate(scene);
+  if (SOUTH_PLAZA_OPEN) {
+    renderSouthPlaza(scene);
+  } else {
+    scene.add.rectangle(0, 1024, WORLD_WIDTH, 56, 0x80be69).setOrigin(0).setDepth(0);
+    renderSouthGate(scene);
+  }
   const footprints = [
     [160, 100, 340, 225], [1035, 100, 300, 240],
     // The sign panel is above ground; only its bottom support blocks movement.

@@ -2,6 +2,7 @@ export class InteractionPrompt {
   private readonly root: HTMLElement;
   private readonly desktopLabel: HTMLElement;
   private readonly mobileLabel: HTMLElement;
+  private visiblePrompt: string | null = null;
 
   public constructor(root: HTMLElement) {
     this.root = root;
@@ -10,6 +11,8 @@ export class InteractionPrompt {
   }
 
   public show(prompt: string): void {
+    if (this.visiblePrompt === prompt) return;
+    this.visiblePrompt = prompt;
     this.desktopLabel.textContent = prompt;
     this.mobileLabel.textContent = prompt;
     this.root.hidden = false;
@@ -17,6 +20,8 @@ export class InteractionPrompt {
   }
 
   public hide(): void {
+    if (this.visiblePrompt === null && this.root.hidden) return;
+    this.visiblePrompt = null;
     this.root.hidden = true;
     this.root.classList.remove("is-visible");
   }

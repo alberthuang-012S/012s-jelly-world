@@ -10,7 +10,7 @@ import { GamePortalSystem } from "../systems/GamePortalSystem";
 import { InputManager } from "../systems/InputManager";
 import { CollisionSystem } from "../systems/CollisionSystem";
 import { InteractionSystem } from "../systems/InteractionSystem";
-import { renderTownV2, WORLD_BOUNDS, WORLD_HEIGHT, WORLD_WIDTH } from "../world/TownV2";
+import { renderTownV2, WORLD_BOUNDS, ACTIVE_WORLD_HEIGHT, WORLD_WIDTH } from "../world/TownV2";
 
 const NPC_CONFIGS: readonly NPCConfig[] = [
   { id: "achang", name: "阿長", role: "總經理", x: 247, y: 219, variant: "manager", accent: 0x67c8df },
@@ -25,6 +25,7 @@ export class LobbyScene extends Phaser.Scene {
   private interactionSystem!: InteractionSystem;
   private collisionSystem!: CollisionSystem;
   private player!: PlayerJelly;
+  private occludingFacades: Phaser.GameObjects.Image[] = [];
   private readonly ui = getGameUI();
   private activeZone = "CENTRAL PLAZA";
 
@@ -34,6 +35,7 @@ export class LobbyScene extends Phaser.Scene {
 
   public create(): void {
     const layout = renderTownV2(this);
+    this.occludingFacades = this.children.list.filter(object => object.getData("occludingFacade")) as Phaser.GameObjects.Image[];
     this.inputManager = new InputManager(this);
     this.dialogueSystem = new DialogueSystem(this.ui.dialogue);
     this.gamePortalSystem = new GamePortalSystem(this.ui.modal, this.ui.toast);
@@ -41,7 +43,7 @@ export class LobbyScene extends Phaser.Scene {
     this.collisionSystem = new CollisionSystem(WORLD_BOUNDS, layout.solids);
     this.player = new PlayerJelly(this, layout.spawn.x, layout.spawn.y);
     this.cameras.main.setBackgroundColor("#80be69");
-    this.cameras.main.setBounds(0, 0, WORLD_WIDTH, WORLD_HEIGHT);
+    this.cameras.main.setBounds(0, 0, WORLD_WIDTH, ACTIVE_WORLD_HEIGHT);
     // Keep a little more of the town above the player in frame while the
     // deadzone prevents tiny movements from making the composition jitter.
     this.cameras.main.startFollow(this.player, true, 0.12, 0.12, 0, 30);
@@ -90,9 +92,7 @@ export class LobbyScene extends Phaser.Scene {
     this.player.tick(time);
     // Fade elevated artwork only while it overlaps a player rendered behind it.
     // Use the visible character's head/feet bounds, rather than its ground collider.
-    for (const object of this.children.list) {
-      if (!object.getData("occludingFacade")) continue;
-      const facade = object as Phaser.GameObjects.Image;
+    for (const facade of this.occludingFacades) {
       const overlaps = this.player.x + 26 > facade.x &&
         this.player.x - 26 < facade.x + facade.width &&
         this.player.y + 6 > facade.y &&
