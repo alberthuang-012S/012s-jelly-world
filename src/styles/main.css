@@ -969,7 +969,7 @@ html, body, #game-shell { background: #deeff5; }
 .placeholder-product { border-color: #e77fa2; box-shadow: 4px 4px 0 #efbdd0; background: #fffafa; }
 .placeholder-caption { display: none; }
 .interaction-prompt, .toast { border-color: #5686c5; box-shadow: 0 4px 0 #234d8a66, inset 0 0 0 2px white; }
-.start-screen { background: #b7dec0 url('/assets/v2/town-roads.png') center / cover no-repeat; color: var(--ink); }
+.start-screen { background: #b7dec0 url('/assets/v2/town-no-bench.png') center / cover no-repeat; color: var(--ink); }
 .start-screen::before { background: linear-gradient(90deg, #12365925, #12365908 60%, #12365922); opacity: 1; }
 .start-screen::after { inset: 14px; border: 2px solid #ffffff8a; }
 .start-card { width: min(460px, calc(100% - 40px)); padding: 28px 28px 25px; border: 3px solid #426fab; background: #f4fbfff2; box-shadow: 0 8px 0 #20417480, inset 0 0 0 5px white, 0 20px 70px #12345740; }
@@ -990,3 +990,11 @@ html, body, #game-shell { background: #deeff5; }
 @media (prefers-reduced-motion: reduce) { .start-jelly-mark { animation: none; } }
 @media (max-height: 560px) and (orientation: landscape) { .start-card { padding: 14px 24px; width: 420px; } .start-jelly-mark { width: 68px; height: 68px; margin: 0 auto; } .start-card h1 { font-size: 34px; } .start-subtitle { margin: 9px 0 12px; } .start-footnote { margin: 14px 0 0; } }
 @media (max-width: 720px) { #game-shell { border-width: 4px; } .hud-brand, .hud-zone { padding: 8px; } .hud { left: 10px; right: 10px; } }
+/* Full-bleed phone viewport; controls remain at CSS-pixel size. */
+body.touch-device #game-shell { border: 0; min-height: 0; }
+body.touch-device.world-active .orientation-hint { display: none; }
+@media (max-width: 600px) {
+  body.touch-device .hud { top: max(10px, env(safe-area-inset-top)); }
+  body.touch-device .mobile-controls { left: max(16px, env(safe-area-inset-left)); right: max(16px, env(safe-area-inset-right)); }
+  body.touch-device .interaction-prompt { bottom: max(174px, calc(env(safe-area-inset-bottom) + 160px)); }
+}

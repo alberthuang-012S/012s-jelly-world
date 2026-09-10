@@ -4,6 +4,7 @@ import { decodePng } from "./pixel-assets/validator.ts";
 
 // Verify real production files: reject baked checkerboards and broken atlas dimensions.
 const assets = [
+  ["town-no-bench", 1536, 1024, false],
   ["town-roads", 1536, 1024, false],
   ["town", 1536, 1024, false], ["jelly", 1254, 1254, true],
   ["jelly-side", 1214, 1295, true], ["jelly-back", 1254, 1254, true],

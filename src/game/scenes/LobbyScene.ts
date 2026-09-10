@@ -42,11 +42,14 @@ export class LobbyScene extends Phaser.Scene {
     this.player = new PlayerJelly(this, layout.spawn.x, layout.spawn.y);
     this.cameras.main.setBackgroundColor("#80be69");
     this.cameras.main.setBounds(0, 0, WORLD_WIDTH, WORLD_HEIGHT);
-    this.cameras.main.setZoom(0.9);
     // Keep a little more of the town above the player in frame while the
     // deadzone prevents tiny movements from making the composition jitter.
     this.cameras.main.startFollow(this.player, true, 0.12, 0.12, 0, 30);
-    this.cameras.main.setDeadzone(220, 108);
+    this.resizeCamera();
+    this.scale.on(Phaser.Scale.Events.RESIZE, this.resizeCamera, this);
+    this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
+      this.scale.off(Phaser.Scale.Events.RESIZE, this.resizeCamera, this);
+    });
     this.cameras.main.centerOn(layout.spawn.x, layout.spawn.y - 30);
     this.ui.zoneLabel.textContent = "CENTRAL PLAZA";
 
@@ -85,12 +88,36 @@ export class LobbyScene extends Phaser.Scene {
     this.player.setMoving(moving, direction.x, direction.y);
     this.collisionSystem.move(this.player, direction, delta);
     this.player.tick(time);
+    // Fade elevated artwork only while it overlaps a player rendered behind it.
+    // Use the visible character's head/feet bounds, rather than its ground collider.
+    for (const object of this.children.list) {
+      if (!object.getData("occludingFacade")) continue;
+      const facade = object as Phaser.GameObjects.Image;
+      const overlaps = this.player.x + 26 > facade.x &&
+        this.player.x - 26 < facade.x + facade.width &&
+        this.player.y + 6 > facade.y &&
+        this.player.y - 54 < facade.y + facade.height;
+      facade.setAlpha(overlaps && this.player.depth < facade.depth ? 0.35 : 1);
+    }
     this.updateZoneLabel();
     this.interactionSystem.update(this.player);
 
     if (interactPressed) {
       this.interactionSystem.tryInteract();
     }
+  }
+
+  private resizeCamera(): void {
+    const { width, height } = this.scale.gameSize;
+    const mobile = (navigator.maxTouchPoints > 0 || matchMedia("(pointer: coarse)").matches) &&
+      Math.min(width, height) <= 900;
+    // CSS-sized canvas avoids shrinking the entire 1280px town onto a phone.
+    // Keep the same readable character size in portrait and landscape.
+    this.cameras.main.setZoom(mobile ? 1.25 : Math.min(width / 1280, height / 720) * 0.9);
+    this.cameras.main.setDeadzone(mobile ? 72 : 220, mobile ? 48 : 108);
+    this.cameras.main.centerOn(this.player.x, this.player.y - 30);
+    this.inputManager.clearTouchDirections();
+    this.ui.mobile.releaseAll();
   }
 
   private createNPCs(positions: {

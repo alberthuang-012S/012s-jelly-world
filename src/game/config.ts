@@ -13,7 +13,7 @@ export const GAME_CONFIG: Phaser.Types.Core.GameConfig = {
   height: DESIGN_HEIGHT,
   scene: [BootScene, LobbyScene],
   scale: {
-    mode: Phaser.Scale.FIT,
+    mode: Phaser.Scale.RESIZE,
     autoCenter: Phaser.Scale.CENTER_BOTH,
     width: DESIGN_WIDTH,
     height: DESIGN_HEIGHT,

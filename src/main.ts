@@ -4,10 +4,11 @@ import { GAME_CONFIG } from "./game/config";
 import { getGameUI, initializeGameUI } from "./ui/GameUI";
 
 const ui = initializeGameUI();
-export const game = new Phaser.Game(GAME_CONFIG);
 
 const touchDevice = navigator.maxTouchPoints > 0 || "ontouchstart" in window;
 document.body.classList.toggle("touch-device", touchDevice);
+// Apply mobile layout before Phaser measures its parent for the first frame.
+export const game = new Phaser.Game(GAME_CONFIG);
 
 const startScreen = document.querySelector<HTMLElement>("#start-screen");
 const enterButton = document.querySelector<HTMLButtonElement>("#enter-world");

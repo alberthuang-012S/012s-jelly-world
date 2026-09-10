@@ -10,14 +10,18 @@ export function renderTownV2(scene: Phaser.Scene): LobbyLayout {
   scene.add.image(0, 0, "town-v2").setOrigin(0).setDepth(0);
   const footprints = [
     [160, 100, 340, 225], [1035, 100, 300, 240],
-    [635, 250, 265, 177], [470, 637, 600, 215],
+    // The sign panel is above ground; only its bottom support blocks movement.
+    // Leave a continuous passage behind it instead of blocking the whole artwork.
+    [650, 408, 238, 20], [470, 637, 600, 215],
     // INFO roof overhang is visual only; collide with the ground-level walls.
     [1148, 540, 238, 115],
     // Keep the visible eastern bypass open, while blocking the outer cliff.
     [1470, 580, 66, 444], [1400, 810, 70, 214],
     [270, 0, 350, 100], [925, 0, 450, 100], [270, 380, 20, 120],
     [380, 390, 155, 83],
-    [1180, 696, 155, 78], [1200, 800, 200, 180], [270, 570, 95, 355],
+    // The INFO bench was removed; only the remaining shrub base blocks movement.
+    [1302, 732, 31, 35],
+    [1200, 800, 200, 180], [270, 570, 95, 355],
     [627, 425, 83, 53], [831, 426, 76, 53],
   ];
   // Only the planted base blocks movement. Canopies overhang the paving and
@@ -34,6 +38,8 @@ export function renderTownV2(scene: Phaser.Scene): LobbyLayout {
     const frame = `facade-${i}`;
     if (!scene.textures.get("town-v2").has(frame)) scene.textures.get("town-v2").add(frame, 0, x, y, w, h);
     const facade = scene.add.image(x, y, "town-v2", frame).setOrigin(0).setDepth(y + h);
+    facade.setData("occludingFacade", true);
+    if (i === 2) facade.setName("event-board-foreground");
     if (i === 3) {
       // The INFO atlas rectangle includes road in its upper corners. Mask that
       // empty space out so it cannot cut a walking character along a straight edge.
@@ -55,11 +61,6 @@ export function renderTownV2(scene: Phaser.Scene): LobbyLayout {
       });
     }
   });
-  // Place a route sign on the non-walkable hedge, never in the walking lane.
-  scene.add.text(768, 601, "←  ARCADE  →", {
-    fontFamily: "monospace", fontSize: "14px", fontStyle: "bold",
-    color: "#173a76", backgroundColor: "#fff0ca", padding: { x: 10, y: 5 },
-  }).setOrigin(0.5).setDepth(638);
   for (let i = 0; i < 16; i++) {
     const x = 380 + (i * 127) % 710, y = 370 + (i * 83) % 260;
     const mote = scene.add.rectangle(x, y, 3, 3, i % 3 ? 0xfff4b0 : 0xffffff, 0.7).setDepth(1100);

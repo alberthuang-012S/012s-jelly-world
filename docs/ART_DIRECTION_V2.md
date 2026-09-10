@@ -81,3 +81,9 @@ Edit this production RPG map to improve WALKABLE ROAD DESIGN. Preserve exact 153
 姓名牌由 11px 提升到 18px，採 3 倍文字解析度、白字深藍底、線性取樣；獨立顯示於場景前景上方，避免名字被建築蓋住。實際瀏覽器確認兩套服裝與三個姓名牌顯示正常，型別與素材檢查通過。
 
 生成提示詞：Edit ONLY the clothing of the two humans in this transparent pixel RPG NPC sprite sheet. Keep exact 1536x1024 canvas, 3 columns of 512x1024, characters at identical positions and sizes. Left man: replace white lab coat with tailored dark navy BUSINESS SUIT, matching suit jacket and trousers, white shirt, blue tie, black dress shoes. No lab coat, no ID lanyard. Middle woman: replace jacket/blouse/skirt outfit with a single elegant pink A-LINE DRESS, fitted bodice, clearly flared knee-length skirt, short sleeves, small waist ribbon, pink or dark shoes. Keep her handheld microphone. Preserve both original faces, hairstyles, cute proportions and pixel shading. Right robot remains completely unchanged. Preserve genuine transparent alpha background, no gray checkerboard, no glow, no added scenery, no text.
+
+## 移除 INFO 下方長椅
+
+內建 imagegen 將 INFO 下方長椅及陰影移除，补成草地，正式背景為 `public/assets/v2/town-no-bench.png`。Boot 與開始畫面同步引用；刪除長椅碰撞，保留旁邊樹叢。
+
+提示詞：Precise object removal. Remove ONLY the small wooden BENCH directly BELOW the purple INFO booth, at pixel rectangle x1182 y698 to1292 y767 in this 1536x1024 image. Replace that bench and its shadow with unobstructed matching green grass ground. Preserve the small tree immediately to its right, the nearby gray post, flowers and all roads. Preserve ALL other pixels and all building positions, signs, color, art style, camera, canvas dimensions. Do NOT remove any other benches: keep the bench near LAB on the left and bottom left bench unchanged. Do NOT change the INFO service counter, roof, or building. Only remove the outdoor bench below INFO. Full image 1536x1024.
