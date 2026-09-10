@@ -2,7 +2,11 @@
 
 012S Jelly World 是一個可愛像素風的互動世界／遊戲大廳。玩家可以操作自己的水母，在戶外小鎮式 Lobby 裡探索 LAB、LIVE、EVENT、INFO 與 ARCADE，和 NPC 對話、查看活動公告，或開啟 012S 的四款外部小遊戲。
 
-## Phase 1
+## V2 美術重製
+
+目前 runtime 已切換為明亮細緻像素小鎮，包含新的場景、藍白四向水母、三位 NPC 與亮色介面。素材、提示詞、座標與驗證紀錄見 [V2 美術說明](docs/ART_DIRECTION_V2.md)。執行 `pnpm validate:art-v2` 可檢查正式素材。下方 Phase 1 內容保留為舊版紀錄。
+
+## Phase 1（歷史紀錄）
 
 目前版本是可在本機遊玩的 MVP，包含：
 

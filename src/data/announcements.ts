@@ -16,7 +16,7 @@ export const announcements: readonly Announcement[] = [
     title: "PPT+1 三重抽獎活動",
     body: "快來參加PPT+1三重抽獎活動",
     placeholderTitle: "PPT+1",
-    placeholderSubtitle: "PRODUCT IMAGE",
+    placeholderSubtitle: "COMMUNITY EVENT",
     primaryLabel: "查看活動",
     developmentMessage: "活動功能開發中",
   },

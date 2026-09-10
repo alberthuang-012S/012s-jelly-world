@@ -9,6 +9,7 @@
     "typecheck": "tsc --noEmit",
     "preview": "vite preview",
     "validate:assets": "node --experimental-strip-types scripts/validate-pixel-assets.ts",
+    "validate:art-v2": "node --experimental-strip-types scripts/validate-v2-art.ts",
     "validate:terrain": "node --experimental-strip-types scripts/validate-pixel-assets.ts --kind terrain",
     "validate:character": "node --experimental-strip-types scripts/validate-pixel-assets.ts --kind character",
     "build:terrain": "node --experimental-strip-types scripts/pixel-assets/build-formal-terrain.ts",

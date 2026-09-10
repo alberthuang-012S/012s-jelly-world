@@ -4,7 +4,7 @@ import { GAME_CONFIG } from "./game/config";
 import { getGameUI, initializeGameUI } from "./ui/GameUI";
 
 const ui = initializeGameUI();
-const game = new Phaser.Game(GAME_CONFIG);
+export const game = new Phaser.Game(GAME_CONFIG);
 
 const touchDevice = navigator.maxTouchPoints > 0 || "ontouchstart" in window;
 document.body.classList.toggle("touch-device", touchDevice);

@@ -4,14 +4,13 @@ import { announcements } from "../../data/announcements";
 import type { CharacterId } from "../../data/dialogues";
 import { NPC, type NPCConfig } from "../actors/NPC";
 import { PlayerJelly } from "../actors/PlayerJelly";
-import { ArcadeMachine } from "../actors/ArcadeMachine";
 import { getGameUI } from "../../ui/GameUI";
 import { DialogueSystem } from "../systems/DialogueSystem";
 import { GamePortalSystem } from "../systems/GamePortalSystem";
 import { InputManager } from "../systems/InputManager";
 import { CollisionSystem } from "../systems/CollisionSystem";
 import { InteractionSystem } from "../systems/InteractionSystem";
-import { renderLobby, WORLD_BOUNDS, WORLD_HEIGHT, WORLD_WIDTH } from "../world/WorldDecor";
+import { renderTownV2, WORLD_BOUNDS, WORLD_HEIGHT, WORLD_WIDTH } from "../world/TownV2";
 
 const NPC_CONFIGS: readonly NPCConfig[] = [
   { id: "achang", name: "阿長", role: "總經理", x: 247, y: 219, variant: "manager", accent: 0x67c8df },
@@ -34,19 +33,22 @@ export class LobbyScene extends Phaser.Scene {
   }
 
   public create(): void {
-    const layout = renderLobby(this);
+    const layout = renderTownV2(this);
     this.inputManager = new InputManager(this);
     this.dialogueSystem = new DialogueSystem(this.ui.dialogue);
     this.gamePortalSystem = new GamePortalSystem(this.ui.modal, this.ui.toast);
     this.interactionSystem = new InteractionSystem(this.ui.prompt);
     this.collisionSystem = new CollisionSystem(WORLD_BOUNDS, layout.solids);
     this.player = new PlayerJelly(this, layout.spawn.x, layout.spawn.y);
-    this.cameras.main.setBackgroundColor("#8fd08b");
+    this.cameras.main.setBackgroundColor("#80be69");
     this.cameras.main.setBounds(0, 0, WORLD_WIDTH, WORLD_HEIGHT);
+    this.cameras.main.setZoom(0.9);
     // Keep a little more of the town above the player in frame while the
     // deadzone prevents tiny movements from making the composition jitter.
-    this.cameras.main.startFollow(this.player, true, 0.12, 0.12, 0, 72);
+    this.cameras.main.startFollow(this.player, true, 0.12, 0.12, 0, 30);
     this.cameras.main.setDeadzone(220, 108);
+    this.cameras.main.centerOn(layout.spawn.x, layout.spawn.y - 30);
+    this.ui.zoneLabel.textContent = "CENTRAL PLAZA";
 
     this.createNPCs(layout.npcPositions);
     this.createAnnouncement(layout.announcement);
@@ -148,15 +150,13 @@ export class LobbyScene extends Phaser.Scene {
       if (!position) {
         return;
       }
-      const machine = new ArcadeMachine(this, game, position.x, position.y);
-      this.collisionSystem.addObstacle(machine.getCollisionRect());
       this.interactionSystem.register({
         id: `arcade-${game.id}`,
         type: "arcade",
         x: position.x,
-        y: position.y - 52,
-        interactionRadius: 83,
-        prompt: "開始遊戲",
+        y: position.y + 30,
+        interactionRadius: 64,
+        prompt: `開始遊戲 · ${game.machineLabel}`,
         priority: 1,
         onInteract: () => this.gamePortalSystem.open(game),
       });
@@ -179,19 +179,19 @@ export class LobbyScene extends Phaser.Scene {
   }
 
   private getZoneLabel(x: number, y: number): string {
-    if (x < 720 && y < 485) {
+    if (x < 560 && y < 490) {
       return "LAB / RESEARCH";
     }
-    if (x > 1100 && y < 485) {
+    if (x > 1000 && y < 430) {
       return "LIVE / STUDIO";
     }
-    if (x > 1270 && y > 520 && y < 810) {
+    if (x > 1060 && y >= 430 && y < 790) {
       return "INFO / SERVICE";
     }
-    if (y > 835) {
+    if (y > 790) {
       return "ARCADE / PLAY";
     }
-    if (x > 700 && x < 1100 && y > 390 && y < 560) {
+    if (x > 620 && x < 925 && y > 390 && y < 515) {
       return "EVENT / NEWS";
     }
     return "CENTRAL PLAZA";

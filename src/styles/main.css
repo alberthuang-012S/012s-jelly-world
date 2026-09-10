@@ -65,8 +65,7 @@ button:focus-visible {
 #game-container {
   position: absolute;
   inset: 0;
-  display: grid;
-  place-items: center;
+  display: block;
   overflow: hidden;
 }
 
@@ -953,3 +952,41 @@ body.modal-open .mobile-controls {
     margin-top: 12px;
   }
 }
+/* V2: bright enamel signs, warm paper and the same blue-white mascot as the world. */
+:root { color-scheme: light; --ink: #173a76; --ink-soft: #526d91; --cream: #fff5df; --paper: #f7fcff; --aqua: #72d6ff; --coral: #f47ca4; --gold: #ffd687; --lavender: #8272db; }
+html, body, #game-shell { background: #deeff5; }
+#game-shell { border: 8px solid #f4fbff; }
+.hud { top: max(18px, env(safe-area-inset-top)); text-shadow: none; }
+.hud-brand, .hud-zone, .hud-help { border: 2px solid #5b8ac4; background: #f5fcfff2; color: var(--ink); box-shadow: 0 3px 0 #1e48864a, inset 0 0 0 2px white; padding: 10px 13px; }
+.hud-brand-mark { color: #067be6; }
+.hud-brand-name, .hud-help { color: var(--ink); }
+.hud-zone { color: #5d57a2; }
+.dialogue-card, .modal-card { border: 3px solid #426bab; box-shadow: 0 6px 0 #244a80, inset 0 0 0 5px #dfedff; }
+.dialogue-layer, .modal-layer { background: #17375f55; backdrop-filter: blur(3px); }
+.pixel-button, .enter-button { border-color: #285aa3; box-shadow: 0 4px 0 #285aa3, inset 0 2px 0 #ffffffaa; }
+.pixel-button-primary { background: #d4f3ff; }
+.modal-placeholder { border-color: #8aace0; background: repeating-linear-gradient(0deg, #ecf7ff 0 18px, #deefff 18px 20px); box-shadow: 3px 3px 0 #bdd6f0; }
+.placeholder-product { border-color: #e77fa2; box-shadow: 4px 4px 0 #efbdd0; background: #fffafa; }
+.placeholder-caption { display: none; }
+.interaction-prompt, .toast { border-color: #5686c5; box-shadow: 0 4px 0 #234d8a66, inset 0 0 0 2px white; }
+.start-screen { background: #b7dec0 url('/assets/v2/town-roads.png') center / cover no-repeat; color: var(--ink); }
+.start-screen::before { background: linear-gradient(90deg, #12365925, #12365908 60%, #12365922); opacity: 1; }
+.start-screen::after { inset: 14px; border: 2px solid #ffffff8a; }
+.start-card { width: min(460px, calc(100% - 40px)); padding: 28px 28px 25px; border: 3px solid #426fab; background: #f4fbfff2; box-shadow: 0 8px 0 #20417480, inset 0 0 0 5px white, 0 20px 70px #12345740; }
+.start-badge { border: 0; color: #5a7b9b; font-size: 9px; letter-spacing: 2px; }
+.start-jelly-mark { width: 108px; height: 108px; margin: 4px auto 9px; background: url('/assets/v2/jelly-preferred-front.png') center / contain no-repeat; animation: jelly-float 3s ease-in-out infinite; }
+.start-jelly-mark::before, .start-jelly-mark span { display: none; }
+.start-kicker { color: #478fce; font-size: 10px; letter-spacing: 4px; }
+.start-card h1 { color: #173e80; font-family: 'Courier New', monospace; font-size: clamp(34px, 6vw, 51px); line-height: 1.05; letter-spacing: -2px; text-shadow: 2px 3px 0 #c2e5ff; }
+.start-card h1 span { color: #138de6; }
+.start-subtitle { color: #496987; font-size: 16px; margin: 16px 0 22px; letter-spacing: 3px; }
+.enter-button { background: #228ce8; color: white; min-width: 230px; text-shadow: 0 1px #145aa1; }
+.enter-button:disabled { cursor: wait; opacity: 0.6; }
+.start-footnote { color: #6486a6; font-size: 9px; letter-spacing: 1.4px; line-height: 1.8; }
+.start-orbit { display: none; }
+.dpad-button { background: #f3fbfff0; border-color: #5483bd; }
+.mobile-interact { background: #b5e7ff; border-color: #5483bd; }
+@keyframes jelly-float { 50% { transform: translateY(-5px); } }
+@media (prefers-reduced-motion: reduce) { .start-jelly-mark { animation: none; } }
+@media (max-height: 560px) and (orientation: landscape) { .start-card { padding: 14px 24px; width: 420px; } .start-jelly-mark { width: 68px; height: 68px; margin: 0 auto; } .start-card h1 { font-size: 34px; } .start-subtitle { margin: 9px 0 12px; } .start-footnote { margin: 14px 0 0; } }
+@media (max-width: 720px) { #game-shell { border-width: 4px; } .hud-brand, .hud-zone { padding: 8px; } .hud { left: 10px; right: 10px; } }
