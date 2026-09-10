@@ -991,7 +991,12 @@ html, body, #game-shell { background: #deeff5; }
 @media (max-height: 560px) and (orientation: landscape) { .start-card { padding: 14px 24px; width: 420px; } .start-jelly-mark { width: 68px; height: 68px; margin: 0 auto; } .start-card h1 { font-size: 34px; } .start-subtitle { margin: 9px 0 12px; } .start-footnote { margin: 14px 0 0; } }
 @media (max-width: 720px) { #game-shell { border-width: 4px; } .hud-brand, .hud-zone { padding: 8px; } .hud { left: 10px; right: 10px; } }
 /* Full-bleed phone viewport; controls remain at CSS-pixel size. */
-body.touch-device #game-shell { border: 0; min-height: 0; }
+body.touch-device #game-shell {
+  border: 0;
+  min-height: 0;
+  width: var(--viewport-width, 100vw);
+  height: var(--viewport-height, 100dvh);
+}
 body.touch-device.world-active .orientation-hint { display: none; }
 @media (max-width: 600px) {
   body.touch-device .hud { top: max(10px, env(safe-area-inset-top)); }
