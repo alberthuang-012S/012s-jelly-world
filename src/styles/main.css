@@ -220,6 +220,25 @@ button:focus-visible {
   font-weight: 900;
 }
 
+.interaction-prompt.is-dialogue-prompt .prompt-touch-icon {
+  display: none;
+}
+
+.interaction-prompt.is-dialogue-prompt .prompt-desktop::before {
+  content: "按";
+}
+
+body.touch-device .dialogue-layer {
+  padding-bottom: max(clamp(48px, 12dvh, 100px), env(safe-area-inset-bottom));
+  min-height: 0;
+}
+
+body.touch-device .dialogue-card {
+  max-height: 100%;
+  overflow-y: auto;
+  min-height: 0;
+}
+
 .dialogue-layer,
 .modal-layer {
   position: absolute;

@@ -13,8 +13,10 @@ export class InteractionPrompt {
   public show(prompt: string): void {
     if (this.visiblePrompt === prompt) return;
     this.visiblePrompt = prompt;
-    this.desktopLabel.textContent = prompt;
-    this.mobileLabel.textContent = prompt;
+    const dialogue = prompt === "對話";
+    this.root.classList.toggle("is-dialogue-prompt", dialogue);
+    this.desktopLabel.textContent = dialogue ? "開始對話" : prompt;
+    this.mobileLabel.textContent = dialogue ? "按互動開始對話" : prompt;
     this.root.hidden = false;
     this.root.classList.add("is-visible");
   }
