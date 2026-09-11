@@ -113,7 +113,11 @@ export class LobbyScene extends Phaser.Scene {
       Math.min(width, height) <= 900;
     // CSS-sized canvas avoids shrinking the entire 1280px town onto a phone.
     // Keep the same readable character size in portrait and landscape.
-    this.cameras.main.setZoom(mobile ? 1.25 : Math.min(width / 1280, height / 720) * 0.9);
+    const preferredZoom = mobile ? 1.25 : Math.min(width / 1280, height / 720) * 0.9;
+    // A viewport wider/taller than the world exposes the camera background even
+    // with bounds enabled. Keep its visible world area inside the map.
+    const coverZoom = Math.max(width / WORLD_WIDTH, height / ACTIVE_WORLD_HEIGHT);
+    this.cameras.main.setZoom(Math.max(preferredZoom, coverZoom));
     // A per-frame easing factor makes camera latency worse on slower phones.
     // Touch movement should track immediately once it leaves the deadzone.
     this.cameras.main.setLerp(mobile ? 1 : 0.12);
