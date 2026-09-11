@@ -8,9 +8,9 @@ export const SOUTH_PLAZA_OPEN = true;
 export const ACTIVE_WORLD_HEIGHT = SOUTH_PLAZA_OPEN ? WORLD_HEIGHT : 1080;
 export const WORLD_BOUNDS = new Phaser.Geom.Rectangle(270, 180, 1220, SOUTH_PLAZA_OPEN ? 1125 : 800);
 
-// All coordinates use the production town plate's 1536 × 1024 coordinate system.
+// All coordinates use the unified map's 1536 × 1367 world coordinate system.
 export function renderTownV2(scene: Phaser.Scene): LobbyLayout {
-  scene.add.image(0, 0, "town-v2").setOrigin(0).setDepth(0);
+  scene.add.image(0, 0, "town-v2").setOrigin(0).setDisplaySize(WORLD_WIDTH, WORLD_HEIGHT).setDepth(0);
   if (SOUTH_PLAZA_OPEN) {
     renderSouthPlaza(scene);
   } else {
@@ -42,7 +42,7 @@ export function renderTownV2(scene: Phaser.Scene): LobbyLayout {
     [270, 943, 75, 424], [1200, 943, 290, 424],
   );
   if (SOUTH_PLAZA_OPEN) {
-    footprints.push([470, 1090, 600, 128]);
+    footprints.push([470, 1068, 600, 132]);
   }
   const solids = footprints.map(([x, y, w, h]) => new Phaser.Geom.Rectangle(x, y, w, h));
   // Facade overlays share their ground depth with actors to preserve occlusion.
@@ -50,8 +50,8 @@ export function renderTownV2(scene: Phaser.Scene): LobbyLayout {
     [635, 250, 265, 177], [1128, 435, 280, 220], [470, 637, 600, 215]];
   facades.forEach(([x, y, w, h], i) => {
     const frame = `facade-${i}`;
-    if (!scene.textures.get("town-v2").has(frame)) scene.textures.get("town-v2").add(frame, 0, x, y, w, h);
-    const facade = scene.add.image(x, y, "town-v2", frame).setOrigin(0).setDepth(y + h);
+    addWorldFrame(scene, frame, x, y, w, h);
+    const facade = scene.add.image(x, y, "town-v2", frame).setOrigin(0).setDisplaySize(w, h).setDepth(y + h);
     facade.setData("occludingFacade", true);
     if (i === 2) facade.setName("event-board-foreground");
     if (i === 3) {
@@ -75,10 +75,6 @@ export function renderTownV2(scene: Phaser.Scene): LobbyLayout {
       });
     }
   });
-  // Replace the old fourth machine screen and label, including its facade overlay.
-  scene.add.rectangle(957, 782, 48, 40, 0x14234e).setDepth(860);
-  for (let i = 0; i < 3; i++) scene.add.rectangle(943 + i * 14, 782, 10, 24, [0xff7b9f, 0x69dcef, 0xffdc67][i]).setDepth(861);
-  scene.add.text(957, 844, "04 SORT", {fontFamily:"monospace",fontSize:"13px",fontStyle:"bold",color:"#ffffff",backgroundColor:"#17376c",padding:{x:8,y:4}}).setOrigin(0.5).setDepth(862);
   for (let i = 0; i < 16; i++) {
     const x = 380 + (i * 127) % 710, y = 370 + (i * 83) % 260;
     const mote = scene.add.rectangle(x, y, 3, 3, i % 3 ? 0xfff4b0 : 0xffffff, 0.7).setDepth(1100);
@@ -88,7 +84,7 @@ export function renderTownV2(scene: Phaser.Scene): LobbyLayout {
     solids, spawn: { x: 768, y: 545 }, announcement: { x: 768, y: 440 },
     npcPositions: { achang: { x: 320, y: 355 }, xindi: { x: 1185, y: 375 }, bot: { x: 1268, y: 678 } },
     arcadePositions: [...[579, 700, 836, 957].map(x => ({ x, y: 843 })),
-      ...(SOUTH_PLAZA_OPEN ? [578,694,826,947].map(x => ({x,y:1213})) : [])],
+      ...(SOUTH_PLAZA_OPEN ? [578,694,826,947].map(x => ({x,y:1196})) : [])],
   };
 }
 
@@ -111,15 +107,21 @@ function renderSouthGate(scene: Phaser.Scene): void {
   }).setOrigin(0.5, 0).setResolution(3).setDepth(1100).setName("south-plaza-development-sign");
 }
 
-/** The southern arcade uses one authored background, replacing the old tiled garden. */
+/** Crop overlays from the same master image to keep edges and detail aligned. */
+function addWorldFrame(scene: Phaser.Scene, name: string, x: number, y: number, w: number, h: number): void {
+  const texture = scene.textures.get("town-v2");
+  if (texture.has(name)) return;
+  const source = texture.getSourceImage();
+  const sx = source.width / WORLD_WIDTH, sy = source.height / WORLD_HEIGHT;
+  const left = Math.round(x * sx), top = Math.round(y * sy);
+  texture.add(name, 0, left, top, Math.round((x + w) * sx) - left, Math.round((y + h) * sy) - top);
+}
+
 function renderSouthPlaza(scene: Phaser.Scene): void {
-  const texture = scene.textures.get("town-south");
-  if (!texture.has("south-region")) texture.add("south-region", 0, 0, 530, 1536, 494);
-  scene.add.image(0, 873, "town-south", "south-region").setOrigin(0).setDepth(0);
-  if (!texture.has("south-facade")) texture.add("south-facade", 0, 460, 647, 615, 228);
-  scene.add.image(460, 990, "town-south", "south-facade").setOrigin(0).setDepth(1218).setData("occludingFacade", true);
-  scene.add.text(947, 1238, "尚未開放", {
+  addWorldFrame(scene, "south-facade", 460, 965, 615, 245);
+  scene.add.image(460, 965, "town-v2", "south-facade").setOrigin(0).setDisplaySize(615, 245).setDepth(1210).setData("occludingFacade", true);
+  scene.add.text(947, 1221, "尚未開放", {
     fontFamily: '"Microsoft JhengHei", sans-serif', fontSize: "16px",
     color: "#17376c", backgroundColor: "#fff4d6", padding: {x:8,y:5},
-  }).setOrigin(0.5).setResolution(2).setDepth(1240);
+  }).setOrigin(0.5).setResolution(2).setDepth(1223);
 }

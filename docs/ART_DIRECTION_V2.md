@@ -104,3 +104,11 @@ Built-in imagegen edits saved as `public/assets/v2/town-no-flags.png` and `publi
 Prompt 1: Edit exact 1536x1024 town. Remove only the two blue banners, poles and stone bases immediately beside EVENT NEWS at x600/x935, y280–455. Fill with matching cream paving. Preserve board, planters, buildings, layout and all other details.
 
 Prompt 2: Edit exact southern map. Redesign only lower third cabinet 07 MEMORY at x827,y744–873: lavender/indigo body with turquoise edges, two overlapping memory cards (question-mark back and tiny jellyfish face). Preserve label, footprint, cabinet size and all other map elements.
+
+
+## Unified map and seam repair (2026-09-11)
+Built-in imagegen combined `town-no-flags.png` and `town-south-memory.png` into `public/assets/v2/town-unified.png`. Actual output: 1330×1183, mapped consistently to the 1536×1367 world. No runtime horizontal splice; facade frames are extracted from the same image with source/world coordinate conversion. This unifies detail rendering; it is not a native-resolution increase.
+
+Prompt: Combine upper source y0–873 with lower source y530–1024 at world offset343 into one seamless map. Preserve LAB, LIVE, board with no flags, INFO, and both arcade buildings. Repair roads, riverbanks, cliffs and trees across y830–960; no horizontal cuts or split trees. Match crisp pixel edges, contrast and detail across both halves. Preserve TIME stopwatch, NUMBER digits, MEMORY cards and SOON lock; no characters or new props in paths. Requested 1536×1367; generator returned 1330×1183, so source/world scaling is explicit.
+
+Final refinement: `public/assets/v2/town-unified-refined.png` (1329×1183). Built-in prompt: refine the exact unified map with crisp pixel edges and consistent lower-half texture, preserve every building/road and label, correct 04 SORT to three tubes. Requested high-resolution output (3072×2736, minimum width2048) but tool returned1329×1183; do not describe it as a resolution increase. Selected for visibly cleaner pixel outlines and unified materials. Runtime has no sorting-screen patch or north/south splice.

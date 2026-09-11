@@ -94,9 +94,9 @@ export class LobbyScene extends Phaser.Scene {
     // Use the visible character's head/feet bounds, rather than its ground collider.
     for (const facade of this.occludingFacades) {
       const overlaps = this.player.x + 26 > facade.x &&
-        this.player.x - 26 < facade.x + facade.width &&
+        this.player.x - 26 < facade.x + facade.displayWidth &&
         this.player.y + 6 > facade.y &&
-        this.player.y - 54 < facade.y + facade.height;
+        this.player.y - 54 < facade.y + facade.displayHeight;
       facade.setAlpha(overlaps && this.player.depth < facade.depth ? 0.35 : 1);
     }
     this.updateZoneLabel();

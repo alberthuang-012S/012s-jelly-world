@@ -4,6 +4,7 @@ import { decodePng } from "./pixel-assets/validator.ts";
 
 // Verify real production files: reject baked checkerboards and broken atlas dimensions.
 const assets = [
+  ["town-unified-refined", 1329, 1183, false],
   ["town-no-bench", 1536, 1024, false],
   ["town-no-flags", 1536, 1024, false],
   ["town-south-memory", 1536, 1024, false],
