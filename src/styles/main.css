@@ -969,7 +969,7 @@ html, body, #game-shell { background: #deeff5; }
 .placeholder-product { border-color: #e77fa2; box-shadow: 4px 4px 0 #efbdd0; background: #fffafa; }
 .placeholder-caption { display: none; }
 .interaction-prompt, .toast { border-color: #5686c5; box-shadow: 0 4px 0 #234d8a66, inset 0 0 0 2px white; }
-.start-screen { background: #b7dec0 url('/assets/v2/town-no-bench.png') center / cover no-repeat; color: var(--ink); }
+.start-screen { background: #b7dec0 url('/assets/v2/town-no-flags.png') center / cover no-repeat; color: var(--ink); }
 .start-screen::before { background: linear-gradient(90deg, #12365925, #12365908 60%, #12365922); opacity: 1; }
 .start-screen::after { inset: 14px; border: 2px solid #ffffff8a; }
 .start-card { width: min(460px, calc(100% - 40px)); padding: 28px 28px 25px; border: 3px solid #426fab; background: #f4fbfff2; box-shadow: 0 8px 0 #20417480, inset 0 0 0 5px white, 0 20px 70px #12345740; }

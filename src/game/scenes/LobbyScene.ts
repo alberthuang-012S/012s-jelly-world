@@ -114,6 +114,9 @@ export class LobbyScene extends Phaser.Scene {
     // CSS-sized canvas avoids shrinking the entire 1280px town onto a phone.
     // Keep the same readable character size in portrait and landscape.
     this.cameras.main.setZoom(mobile ? 1.25 : Math.min(width / 1280, height / 720) * 0.9);
+    // A per-frame easing factor makes camera latency worse on slower phones.
+    // Touch movement should track immediately once it leaves the deadzone.
+    this.cameras.main.setLerp(mobile ? 1 : 0.12);
     this.cameras.main.setDeadzone(mobile ? 72 : 220, mobile ? 48 : 108);
     this.cameras.main.centerOn(this.player.x, this.player.y - 30);
     this.inputManager.clearTouchDirections();
@@ -165,7 +168,7 @@ export class LobbyScene extends Phaser.Scene {
           placeholderTitle: announcement.placeholderTitle,
           placeholderSubtitle: announcement.placeholderSubtitle,
           primaryLabel: announcement.primaryLabel,
-          onPrimary: () => this.ui.modal.setStatus(announcement.developmentMessage),
+          onPrimary: () => { window.open(announcement.url, "_blank", "noopener,noreferrer"); },
         });
       },
     });

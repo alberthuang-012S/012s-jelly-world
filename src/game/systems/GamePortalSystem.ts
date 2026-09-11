@@ -18,14 +18,14 @@ export class GamePortalSystem {
       body: game.description,
       placeholderTitle: game.machineLabel,
       placeholderSubtitle: "GAME PORTAL",
-      primaryLabel: "開始遊戲",
-      onPrimary: () => {
+      primaryLabel: game.url ? "開始遊戲" : undefined,
+      onPrimary: game.url ? () => {
         // This remains directly inside the user click/touch handler for mobile popup rules.
-        const opened = window.open(game.url, "_blank", "noopener,noreferrer");
+        const opened = window.open(game.url!, "_blank", "noopener,noreferrer");
         if (!opened) {
           this.toast.show("瀏覽器封鎖了新分頁，請允許彈出視窗後再試。", "warning");
         }
-      },
+      } : undefined,
     });
   }
 }

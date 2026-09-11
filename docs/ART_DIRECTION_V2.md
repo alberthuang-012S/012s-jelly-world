@@ -87,3 +87,20 @@ Edit this production RPG map to improve WALKABLE ROAD DESIGN. Preserve exact 153
 內建 imagegen 將 INFO 下方長椅及陰影移除，补成草地，正式背景為 `public/assets/v2/town-no-bench.png`。Boot 與開始畫面同步引用；刪除長椅碰撞，保留旁邊樹叢。
 
 提示詞：Precise object removal. Remove ONLY the small wooden BENCH directly BELOW the purple INFO booth, at pixel rectangle x1182 y698 to1292 y767 in this 1536x1024 image. Replace that bench and its shadow with unobstructed matching green grass ground. Preserve the small tree immediately to its right, the nearby gray post, flowers and all roads. Preserve ALL other pixels and all building positions, signs, color, art style, camera, canvas dimensions. Do NOT remove any other benches: keep the bench near LAB on the left and bottom left bench unchanged. Do NOT change the INFO service counter, roof, or building. Only remove the outdoor bench below INFO. Full image 1536x1024.
+
+
+## Southern arcade replacement (2026-09-11)
+
+Replaced the tiled southern garden with `public/assets/v2/town-south-arcade.png`, generated using built-in imagegen from `reference/jelly-world-new-map.png`. Native 1536×1024 image; the lower region starting at source y=530 is displayed at world y=873. The upper town retains its existing assets.
+
+Prompt: Edit the exact reference map, preserving architecture, paving, trees, rivers and pixel scale. Redesign lower cabinets in place: green stopwatch / 05 TIME; pink 123 / 06 NUMBER; amber blue jellyfish / 07 MEMORY; inactive blue padlock / 08 SOON. Upper fourth cabinet: sorted colored tubes / 04 SORT. Remove people and player characters from paths; no new props or buildings.
+
+South uses a single background and one fading building overlay. No procedural tree masks. Cabinet interactions are at y=1243; left and right walkways connect to the northern arcade. The eighth cabinet has no URL.
+
+
+## Bulletin flags and memory cabinet (2026-09-11)
+Built-in imagegen edits saved as `public/assets/v2/town-no-flags.png` and `public/assets/v2/town-south-memory.png`.
+
+Prompt 1: Edit exact 1536x1024 town. Remove only the two blue banners, poles and stone bases immediately beside EVENT NEWS at x600/x935, y280–455. Fill with matching cream paving. Preserve board, planters, buildings, layout and all other details.
+
+Prompt 2: Edit exact southern map. Redesign only lower third cabinet 07 MEMORY at x827,y744–873: lavender/indigo body with turquoise edges, two overlapping memory cards (question-mark back and tiny jellyfish face). Preserve label, footprint, cabinet size and all other map elements.

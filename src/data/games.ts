@@ -2,7 +2,7 @@ export interface ArcadeGame {
   id: string;
   name: string;
   description: string;
-  url: string;
+  url: string | null;
   machineLabel: string;
   accent: number;
   icon: "grid" | "cut" | "color" | "chain";
@@ -37,12 +37,16 @@ export const arcadeGames: readonly ArcadeGame[] = [
     icon: "color",
   },
   {
-    id: "jelly-chain",
-    name: "Jelly Chain",
-    description: "連結水母、累積分數，挑戰更高紀錄。",
-    url: "https://alberthuang-012s.github.io/012s-jelly-chain-game/",
-    machineLabel: "04 CHAIN",
+    id: "color-sorting",
+    name: "顏色排序",
+    description: "挑戰顏色排序。",
+    url: "https://sharkwang0903.github.io/Color-Sorting-Game/",
+    machineLabel: "04 SORT",
     accent: 0x9b8ce9,
-    icon: "chain",
+    icon: "color",
   },
+  { id: "time-test", name: "時間挑戰", description: "挑戰你的時間感。", url: "https://sharkwang0903.github.io/time-test-game/", machineLabel: "05 TIME", accent: 0x67c8df, icon: "grid" },
+  { id: "number-memory", name: "數字記憶", description: "挑戰你的數字記憶。", url: "https://sharkwang0903.github.io/number-memory/", machineLabel: "06 NUMBER", accent: 0xf28b75, icon: "grid" },
+  { id: "jellyfish-memory", name: "水母記憶", description: "挑戰你的水母記憶。", url: "https://sharkwang0903.github.io/jellyfish-memory/", machineLabel: "07 MEMORY", accent: 0xf0c75e, icon: "grid" },
+  { id: "coming-soon", name: "新遊戲準備中", description: "第八台遊戲機尚未開放，敬請期待！", url: null, machineLabel: "08 SOON", accent: 0x9b8ce9, icon: "chain" },
 ];
